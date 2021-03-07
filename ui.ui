@@ -3,6 +3,7 @@
   <object class="tk.Toplevel" id="mainwindow">
     <property name="height">600</property>
     <property name="resizable">both</property>
+    <property name="takefocus">true</property>
     <property name="title" translatable="yes">eXplosion Diffuser</property>
     <property name="width">850</property>
     <child>
@@ -206,7 +207,7 @@
               </object>
             </child>
             <child>
-              <object class="ttk.Label" id="label_memory_usage">
+              <object class="ttk.Label" id="label_memory_usage_1">
                 <property name="font">{DejaVu Sans} 13 {}</property>
                 <property name="justify">right</property>
                 <property name="takefocus">false</property>
@@ -418,7 +419,7 @@
               <object class="ttk.Button" id="button_generate_problem">
                 <property name="command">generate_problem_callback</property>
                 <property name="idtocommand">false</property>
-                <property name="takefocus">true</property>
+                <property name="takefocus">false</property>
                 <property name="text" translatable="yes">Generate random problem or input it</property>
                 <property name="textvariable">string:generate_problem</property>
                 <layout manager="place">
@@ -434,7 +435,7 @@
             <child>
               <object class="ttk.Entry" id="entry_problem">
                 <property name="cursor">xterm</property>
-                <property name="font">{Dingbats} 16 {}</property>
+                <property name="font">{C059} 16 {}</property>
                 <property name="justify">center</property>
                 <property name="takefocus">true</property>
                 <property name="textvariable">string:random_problem</property>
@@ -483,7 +484,7 @@
               </object>
             </child>
             <child>
-              <object class="ttk.Label" id="label_current_best_solution">
+              <object class="ttk.Label" id="label_current_best_solution_2">
                 <property name="font">{Dingbats} 16 {}</property>
                 <property name="justify">center</property>
                 <property name="takefocus">false</property>
@@ -551,7 +552,7 @@
           <object class="ttk.Button" id="button_theme">
             <property name="command">change_theme_callback</property>
             <property name="idtocommand">false</property>
-            <property name="takefocus">true</property>
+            <property name="takefocus">false</property>
             <property name="text" translatable="yes">change theme</property>
             <property name="textvariable">string:theme</property>
             <layout manager="place">
