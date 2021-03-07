@@ -18,7 +18,9 @@ class UiApp:
         builder.connect_callbacks(self)
         
         #root.tk.call locates the theme package and selects styles we wish #to use from that package
-        self.mainwindow.tk.call('lappend', 'auto_path', '/home/dimitrije/Desktop/Computational Intelligence - Explosion Diffuser/awthemes-10.2.1')
+        #FIXME: in tk.call full path is used and that needs to be adressed to avoid portability issues
+        self.theme_abs_path = os.path.abspath('awthemes-10.2.1')
+        self.mainwindow.tk.call('lappend', 'auto_path', self.theme_abs_path)
         self.mainwindow.tk.call('package', 'require', 'awdark')
         self.mainwindow.tk.call('package', 'require', 'awlight')
         #to change the style we need to create an instance of 'Style' class
@@ -61,8 +63,8 @@ class UiApp:
     def show_resource_usage(self):
         self.builder.get_variable('cpu_usage').set(psutil.cpu_percent())
         self.builder.get_variable('memory_usage').set(psutil.virtual_memory().percent)
-        self.mainwindow.after(1000, self.show_resource_usage) #updates stat every 1000ms
-	#psutil.virtual_memory().percent
+        #updates usage stats every 1000ms
+        self.mainwindow.after(1000, self.show_resource_usage) 
 
     def run(self):
         self.mainwindow.mainloop()
