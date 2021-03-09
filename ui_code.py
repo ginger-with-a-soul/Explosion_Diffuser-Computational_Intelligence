@@ -74,13 +74,7 @@ class UiApp:
         entry_field.insert(0, ' '.join(self.problem))
 
 
-    def random_problem_validate_callback(self):
-        pass
-
     def current_best_solution_validate_callback(self):
-        pass
-
-    def mutation_rate_validate_callback(self):
         pass
 
     def start_callback(self):
@@ -107,10 +101,15 @@ class UiApp:
 
         entry_input_size = self.builder.get_object('entry_input_size')
         entry_variation_size = self.builder.get_object('entry_input_num_of_symbols')
+        entry_mutation_rate = self.builder.get_object('entry_mutation_rate')
+        entry_problem = self.builder.get_object('entry_problem')
+
 
         
         self.register_validation(tk.Entry(entry_input_size), self.input_size_validate_callback)
         self.register_validation(tk.Entry(entry_variation_size), self.input_number_validate_callback)
+        self.register_validation(tk.Entry(entry_mutation_rate), self.mutation_rate_validate_callback)
+        self.register_validation(tk.Entry(entry_problem), self.random_problem_validate_callback)
 
     def register_validation(self, entry, callback):
         '''
@@ -134,6 +133,26 @@ class UiApp:
             return False
         else:
             return True
+    
+    def mutation_rate_validate_callback(self):
+        self.mutation_rate = float(self.builder.get_variable('mutation_rate').get())
+
+        if(self.mutation_rate < 0 or self.mutation_rate > 100):
+            print("herree")
+            return False
+        else:
+            return True
+    
+    def random_problem_validate_callback(self):
+        self.problem = self.builder.get_variable('random_problem').get()
+
+        if len(self.problem == 0):
+            return False
+
+        for i in self.problem:
+            if i not in self.available_symbols:
+                return False
+        return True
         
     def run(self):
         self.mainwindow.mainloop()
