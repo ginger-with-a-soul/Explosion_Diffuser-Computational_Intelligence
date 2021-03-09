@@ -27,6 +27,8 @@ class UiApp:
         self.n = 5
         self.problem = ''
         self.available_symbols = list(ascii_lowercase) + [str(i) for i in range(10)]
+        self.output_label = self.builder.get_object('label_current_best_solution')
+        self.current_solution = ''
 
         self.initialize_flags()
 
@@ -117,7 +119,8 @@ class UiApp:
 
         if self.START_FLAG:
             if self.BRUTEFORCE_FLAG:
-                ...
+                self.current_solution = bf.generate_all(self.k, self.n, self.output_label)
+                self.output_label['text'] = self.current_solution
             elif self.MONTECARLO_FLAG:
                 ...
             else:

@@ -424,7 +424,7 @@
               <object class="ttk.Button" id="button_generate_problem">
                 <property name="command">generate_problem_callback</property>
                 <property name="idtocommand">false</property>
-                <property name="takefocus">false</property>
+                <property name="takefocus">true</property>
                 <property name="text" translatable="yes">Generate random problem or input it</property>
                 <property name="textvariable">string:generate_problem</property>
                 <layout manager="place">
