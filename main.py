@@ -6,5 +6,3 @@ if __name__ == "__main__":
     
 
     ui.run()
-       
-    # combinatorial explosion: n^k different variations

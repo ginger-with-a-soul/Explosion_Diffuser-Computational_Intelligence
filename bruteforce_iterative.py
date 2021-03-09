@@ -25,3 +25,4 @@ def generate_all(k:int, n:int):
 			exists_next_variation = False
 		else:
 			current_variation[index] += 1
+		

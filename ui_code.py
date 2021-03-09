@@ -5,7 +5,7 @@ import tkinter.ttk as ttk
 import psutil  # multi-platform library for system resource usage tracking
 from random import choices
 from string import ascii_lowercase # used to generate a list of available symbols
-
+import bruteforce_iterative as bf
 
 PROJECT_PATH = os.path.dirname(__file__)
 PROJECT_UI = os.path.join(PROJECT_PATH, "ui.ui")
@@ -27,7 +27,8 @@ class UiApp:
         self.n = 5
         self.problem = ''
         self.available_symbols = list(ascii_lowercase) + [str(i) for i in range(10)]
-        print(len(self.available_symbols))
+
+        self.initialize_flags()
 
         self.show_resource_usage()
 
@@ -35,26 +36,60 @@ class UiApp:
 
 
 
+    def initialize_flags(self):
+        '''
+        Initializes flags used to communicate frontend and backend states.
+        Initially, size, number, genetic and tournamet flags are True because
+        they have a valid default state.
+        '''
+
+        self.MUTATION_FLAG = True
+        self.PROBLEM_FLAG = False
+        self.SIZE_FLAG = True
+        self.START_FLAG = False
+        self.NUMBER_FLAG = True
+        self.BRUTEFORCE_FLAG = False
+        self.MONTECARLO_FLAG = False
+        self.GENETIC_FLAG = True
+        self.ROULETTE_FLAG = True
+        self.TOURNAMENT_FLAG = False
+
+
     def theme(self):
-        #root.tk.call locates the theme package and selects styles we wish #to use from that package
+        # root.tk.call locates the theme package and selects styles we wish 
+        # to use from that package
         self.theme_abs_path = os.path.abspath('awthemes-10.2.1')
         self.mainwindow.tk.call('lappend', 'auto_path', self.theme_abs_path)
         self.mainwindow.tk.call('package', 'require', 'awdark')
         self.mainwindow.tk.call('package', 'require', 'awlight')
-        #to change the style we need to create an instance of 'Style' class
+        # to change the style we need to create an instance of 'Style' class
         self.style = ttk.Style(self.mainwindow)
         self.style.theme_use('awdark')
-        #self.style.theme_use('awlight')
+        # self.style.theme_use('awlight')
 
 
     def brute_force_callback(self):
-        pass
+        self.BRUTEFORCE_FLAG = True
+        self.GENETIC_FLAG = not self.BRUTEFORCE_FLAG
+        self.MONTECARLO_FLAG = not self.BRUTEFORCE_FLAG
 
     def monte_carlo_callback(self):
-        pass
+        self.MONTECARLO_FLAG = True
+        self.GENETIC_FLAG = not self.MONTECARLO_FLAG
+        self.BRUTEFORCE_FLAG = not self.MONTECARLO_FLAG
 
     def genetic_algorithm_callback(self):
-        pass
+        self.GENETIC_FLAG = True
+        self.MONTECARLO_FLAG = not self.GENETIC_FLAG
+        self.BRUTEFORCE_FLAG = not self.GENETIC_FLAG
+
+    def roulette_selection_callback(self):
+        self.ROULETTE_FLAG = True
+        self.ROULETTE_FLAG = not self.ROULETTE_FLAG
+    
+    def tournament_selection_callback(self):
+        self.TOURNAMENT_FLAG = True
+        self.ROULETTE_FLAG = not self.TOURNAMENT_FLAG
 
     def generate_problem_callback(self):
         '''
@@ -78,7 +113,19 @@ class UiApp:
         pass
 
     def start_callback(self):
-        pass
+        self.START_FLAG = self.NUMBER_FLAG | self.PROBLEM_FLAG | self.SIZE_FLAG
+
+        if self.START_FLAG:
+            if self.BRUTEFORCE_FLAG:
+                ...
+            elif self.MONTECARLO_FLAG:
+                ...
+            else:
+                if self.TOURNAMENT_FLAG:
+                    ...
+                else:
+                    ...
+
 
     def change_theme_callback(self):
         if self.style.theme_use() == 'awdark':
@@ -90,7 +137,7 @@ class UiApp:
     def show_resource_usage(self):
         self.builder.get_variable('cpu_usage').set(psutil.cpu_percent())
         self.builder.get_variable('memory_usage').set(psutil.virtual_memory().percent)
-        #updates usage stats every 1000ms
+        # updates usage stats every 1000ms
         self.mainwindow.after(1000, self.show_resource_usage)
 
     def bind_validation(self):
@@ -121,38 +168,66 @@ class UiApp:
         entry.config(validate = "focusout", validatecommand = (reg, '% P'))
 
     def input_size_validate_callback(self):
-        self.k = int(self.builder.get_variable('input_size').get())
+        
+        try:
+            self.k = int(self.builder.get_variable('input_size').get())
+        except ValueError:
+            self.SIZE_FLAG = False
+            return False
+
         if self.k < 1 or self.k > 16:
+            self.SIZE_FLAG = False
             return False
         else:
+            self.SIZE_FLAG = True
             return True
 
     def input_number_validate_callback(self):
-        self.n = int(self.builder.get_variable('input_number').get())
+
+        try:
+            self.n = int(self.builder.get_variable('input_number').get())
+        except ValueError:
+            self.NUMBER_FLAG = False
+            return False
+        
         if self.n < 1 or self.n > 36:
+            self.NUMBER_FLAG = False
             return False
         else:
+            self.NUMBER_FLAG = True
             return True
     
     def mutation_rate_validate_callback(self):
-        self.mutation_rate = float(self.builder.get_variable('mutation_rate').get())
+
+        # catches if entry field is empty (default 0% mutation rate then)
+        try:
+            self.mutation_rate = float(self.builder.get_variable('mutation_rate').get())
+        except ValueError:
+            self.MUTATION_FLAG = True
+            return True
 
         if(self.mutation_rate < 0 or self.mutation_rate > 100):
-            print("herree")
+            self.MUTATION_FLAG = False
             return False
         else:
+            self.MUTATION_FLAG = True
             return True
     
     def random_problem_validate_callback(self):
         self.problem = self.builder.get_variable('random_problem').get()
-
-        if len(self.problem == 0):
+        
+        if len(self.problem) == 0:
+            self.PROBLEM_FLAG = False
             return False
+        
 
         for i in self.problem:
             if i not in self.available_symbols:
+                self.PROBLEM_FLAG = False
                 return False
-        return True
+            else:
+                self.PROBLEM_FLAG = True
+                return True
         
     def run(self):
         self.mainwindow.mainloop()
