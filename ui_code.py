@@ -29,6 +29,8 @@ class UiApp:
         self.available_symbols = list(ascii_lowercase) + [str(i) for i in range(10)]
         self.output_label = self.builder.get_object('label_current_best_solution')
         self.current_solution = ''
+        self.builder.get_variable('algo_group').set('1')
+        self.builder.get_variable('gene_group').set('-1')
 
         self.initialize_flags()
 
@@ -50,10 +52,10 @@ class UiApp:
         self.SIZE_FLAG = True
         self.START_FLAG = False
         self.NUMBER_FLAG = True
-        self.BRUTEFORCE_FLAG = False
+        self.BRUTEFORCE_FLAG = True
         self.MONTECARLO_FLAG = False
-        self.GENETIC_FLAG = True
-        self.ROULETTE_FLAG = True
+        self.GENETIC_FLAG = False
+        self.ROULETTE_FLAG = False
         self.TOURNAMENT_FLAG = False
 
 
@@ -103,6 +105,9 @@ class UiApp:
         when printing it in the entry box, adds a blank after each symbol
         for readabillity purposes.
         '''
+        
+        self.PROBLEM_FLAG = True
+
         entry_field = self.builder.get_object('entry_problem')
         entry_field.delete("0", "end")
         
@@ -115,12 +120,11 @@ class UiApp:
         pass
 
     def start_callback(self):
-        self.START_FLAG = self.NUMBER_FLAG | self.PROBLEM_FLAG | self.SIZE_FLAG
-
+        self.START_FLAG = self.NUMBER_FLAG & self.PROBLEM_FLAG & self.SIZE_FLAG
+        
         if self.START_FLAG:
             if self.BRUTEFORCE_FLAG:
-                self.current_solution = bf.generate_all(self.k, self.n, self.output_label)
-                self.output_label['text'] = self.current_solution
+                bf.generate_all(self.k, self.n, self.output_label, self.mainwindow, self.problem)
             elif self.MONTECARLO_FLAG:
                 ...
             else:
@@ -171,6 +175,8 @@ class UiApp:
         entry.config(validate = "focusout", validatecommand = (reg, '% P'))
 
     def input_size_validate_callback(self):
+
+        self.clear_problem_entry()
         
         try:
             self.k = int(self.builder.get_variable('input_size').get())
@@ -186,6 +192,8 @@ class UiApp:
             return True
 
     def input_number_validate_callback(self):
+
+        self.clear_problem_entry()
 
         try:
             self.n = int(self.builder.get_variable('input_number').get())
@@ -217,20 +225,37 @@ class UiApp:
             return True
     
     def random_problem_validate_callback(self):
-        self.problem = self.builder.get_variable('random_problem').get()
+        '''
+        Gets problem string and then removes any space characters that are
+        added when generating a problem or inputing it.
+        Checks validity of our problem and sets PROBLEM_FLAG accordingly.
+        '''
+
+        self.problem = (self.builder.get_variable('random_problem').get()).replace(' ', '')
         
-        if len(self.problem) == 0:
+        size = len(self.problem)
+        
+        if size == 0:
             self.PROBLEM_FLAG = False
             return False
         
+        self.k = size
+        input_size = self.builder.get_object('entry_input_size')
+        input_size.delete('0', 'end')
+        input_size.insert(0, size)
 
         for i in self.problem:
             if i not in self.available_symbols:
                 self.PROBLEM_FLAG = False
                 return False
-            else:
-                self.PROBLEM_FLAG = True
-                return True
-        
+
+        self.PROBLEM_FLAG = True
+        return True
+
+    def clear_problem_entry(self):
+        problem = self.builder.get_object('entry_problem')
+        problem.delete('0', 'end')
+        self.PROBLEM_FLAG = False
+
     def run(self):
         self.mainwindow.mainloop()
