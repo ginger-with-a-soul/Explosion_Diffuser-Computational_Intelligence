@@ -22,17 +22,7 @@ class UiApp:
 
         self.theme()
 
-        # variable initialization
-        self.k = 5
-        self.n = 5
-        self.problem = ''
-        self.available_symbols = list(ascii_lowercase) + [str(i) for i in range(10)]
-        # numerical symbols represent a map of available symbols where keys are numbers used for checking current best solution in algorithms that generate variations with numbers only. Key values start with 1 because our variations start with all 1s and not 0s
-        self.available_symbols_numerical = {self.available_symbols[i-1] : i for i in range(1, len(self.available_symbols) + 1)}
-        self.output_label = self.builder.get_object('label_current_best_solution')
-        self.current_solution = ''
-        self.builder.get_variable('algo_group').set('1')
-        self.builder.get_variable('gene_group').set('-1')
+        self.initialize_variables()
 
         self.initialize_flags()
 
@@ -41,6 +31,19 @@ class UiApp:
         self.bind_validation()
 
 
+    def initialize_variables(self):
+        self.k = 5
+        self.n = 5
+        self.problem = ''
+        self.available_symbols = list(ascii_lowercase) + [str(i) for i in range(10)]
+        # numerical symbols represent a map of available symbols where keys are numbers used for checking current best solution in algorithms that generate variations with numbers only. Key values start with 1 because our variations start with all 1s and not 0s
+        self.available_symbols_numerical = {self.available_symbols[i - 1]: i for i in range(1, len(self.available_symbols) + 1)}
+        self.output_label = self.builder.get_object('label_current_best')
+        self.progress_tracker = self.builder.get_object('label_percentage_tracker')
+        self.current_solution = ''
+        self.builder.get_variable('algo_group').set('1')
+        self.builder.get_variable('gene_group').set('-1')
+        self.progress_bar = self.builder.get_object('progressbar')
 
     def initialize_flags(self):
         '''
@@ -109,6 +112,11 @@ class UiApp:
         '''
         
         self.PROBLEM_FLAG = True
+        # resets the progress bar
+        self.progress(value = 0)
+
+        # clears current solution label
+        self.output_label['text'] = ''
 
         entry_field = self.builder.get_object('entry_problem')
         entry_field.delete("0", "end")
@@ -126,7 +134,7 @@ class UiApp:
         
         if self.START_FLAG:
             if self.BRUTEFORCE_FLAG:
-                bf.generate_all(self.k, self.n, self.output_label, self.mainwindow, self.problem, self.available_symbols_numerical)
+                bf.generate_all(self.k, self.n, self.output_label, self.mainwindow, self.problem, self.available_symbols_numerical, self.progress)
             elif self.MONTECARLO_FLAG:
                 ...
             else:
@@ -235,6 +243,8 @@ class UiApp:
 
         self.problem = (self.builder.get_variable('random_problem').get()).replace(' ', '')
         
+        self.progress(value = 0)
+
         size = len(self.problem)
         
         if size == 0:
@@ -256,9 +266,14 @@ class UiApp:
 
     def clear_problem_entry(self):
         problem = self.builder.get_object('entry_problem')
+        self.output_label['text'] = ''
         problem.delete('0', 'end')
         self.PROBLEM_FLAG = False
 
+    def progress(self, value = 0):
+        self.progress_bar['value'] = value
+        self.progress_tracker['text'] = int(value)
+        
 
     def run(self):
         self.mainwindow.mainloop()

@@ -489,11 +489,12 @@
               </object>
             </child>
             <child>
-              <object class="ttk.Label" id="label_current_best_solution_2">
-                <property name="font">{Dingbats} 16 {}</property>
+              <object class="ttk.Label" id="label_current_best">
+                <property name="anchor">center</property>
+                <property name="font">{C059} 16 {}</property>
                 <property name="justify">center</property>
+                <property name="relief">raised</property>
                 <property name="takefocus">false</property>
-                <property name="textvariable">string:current_best</property>
                 <layout manager="place">
                   <property name="anchor">nw</property>
                   <property name="relheight">.12</property>
@@ -571,10 +572,11 @@
         </child>
         <child>
           <object class="ttk.Label" id="label_percentage_tracker">
+            <property name="anchor">center</property>
             <property name="font">{DejaVu Sans} 13 {bold}</property>
             <property name="justify">right</property>
             <property name="takefocus">false</property>
-            <property name="textvariable">string:percentage_tracker</property>
+            <property name="text" translatable="yes">0</property>
             <layout manager="place">
               <property name="anchor">nw</property>
               <property name="relwidth">.06</property>

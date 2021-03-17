@@ -3,7 +3,7 @@ Iterative bruteforce algorithm for generating all
 variations that are k long using n different symbols
 '''
 
-def generate_all(k, n, output_label, mainwindow, problem, num_symbols_map):
+def generate_all(k, n, output_label, mainwindow, problem, num_symbols_map, progress):
 
 	'''
 	Generates all variations starting from all 1s. Variations are
@@ -26,17 +26,16 @@ def generate_all(k, n, output_label, mainwindow, problem, num_symbols_map):
 
 		new_fitness = fitness(k, current_variation, numerical_problem)
 		if(new_fitness > current_best_fitness):
-			print(current_variation)
+			
 			back_to_symbolical = []
 			current_best_fitness = new_fitness
+			progress(current_best_fitness*100.0 / k)
 
 			for i in range(k):
 				for (key, value) in num_symbols_map.items():
 					if value == current_variation[i]:
 						back_to_symbolical.append(key)
 
-			print(back_to_symbolical)
-			print(current_best_fitness)
 			output_label['text'] = back_to_symbolical
 			mainwindow.update()
 
