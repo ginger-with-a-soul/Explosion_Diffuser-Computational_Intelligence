@@ -27,6 +27,8 @@ class UiApp:
         self.n = 5
         self.problem = ''
         self.available_symbols = list(ascii_lowercase) + [str(i) for i in range(10)]
+        # numerical symbols represent a map of available symbols where keys are numbers used for checking current best solution in algorithms that generate variations with numbers only. Key values start with 1 because our variations start with all 1s and not 0s
+        self.available_symbols_numerical = {self.available_symbols[i-1] : i for i in range(1, len(self.available_symbols) + 1)}
         self.output_label = self.builder.get_object('label_current_best_solution')
         self.current_solution = ''
         self.builder.get_variable('algo_group').set('1')
@@ -124,7 +126,7 @@ class UiApp:
         
         if self.START_FLAG:
             if self.BRUTEFORCE_FLAG:
-                bf.generate_all(self.k, self.n, self.output_label, self.mainwindow, self.problem)
+                bf.generate_all(self.k, self.n, self.output_label, self.mainwindow, self.problem, self.available_symbols_numerical)
             elif self.MONTECARLO_FLAG:
                 ...
             else:
@@ -256,6 +258,7 @@ class UiApp:
         problem = self.builder.get_object('entry_problem')
         problem.delete('0', 'end')
         self.PROBLEM_FLAG = False
+
 
     def run(self):
         self.mainwindow.mainloop()
