@@ -232,8 +232,8 @@
             <property name="takefocus">true</property>
             <property name="width">340</property>
             <layout manager="place">
-              <property name="relheight">0.52</property>
-              <property name="relwidth">0.45</property>
+              <property name="relheight">0.55</property>
+              <property name="relwidth">0.48</property>
               <property name="relx">0.0</property>
               <property name="rely">0.3</property>
               <property name="x">0</property>
@@ -244,7 +244,7 @@
                 <property name="command">brute_force_callback</property>
                 <property name="idtocommand">false</property>
                 <property name="takefocus">true</property>
-                <property name="text" translatable="yes">Brute-force</property>
+                <property name="text" translatable="yes">Brute force algorithm</property>
                 <property name="textvariable">string:brute_force</property>
                 <property name="value">1</property>
                 <property name="variable">string:algo_group</property>
@@ -263,13 +263,13 @@
                 <property name="command">monte_carlo_callback</property>
                 <property name="idtocommand">false</property>
                 <property name="takefocus">true</property>
-                <property name="text" translatable="yes">Monte Carlo</property>
+                <property name="text" translatable="yes">Monte Carlo with Gradient Descent</property>
                 <property name="textvariable">string:monte_carlo</property>
                 <property name="value">2</property>
                 <property name="variable">string:algo_group</property>
                 <layout manager="place">
                   <property name="relheight">0.14</property>
-                  <property name="relwidth">0.6</property>
+                  <property name="relwidth">0.8</property>
                   <property name="relx">0.1</property>
                   <property name="rely">0.1</property>
                   <property name="x">0</property>
@@ -282,13 +282,13 @@
                 <property name="command">genetic_algorithm_callback</property>
                 <property name="idtocommand">false</property>
                 <property name="takefocus">true</property>
-                <property name="text" translatable="yes">Genetic Algorithm</property>
+                <property name="text" translatable="yes">Genetic Algorithm with Simulated Annealing</property>
                 <property name="textvariable">string:genetic_algorithm</property>
                 <property name="value">3</property>
                 <property name="variable">string:algo_group</property>
                 <layout manager="place">
                   <property name="relheight">0.14</property>
-                  <property name="relwidth">0.6</property>
+                  <property name="relwidth">0.87</property>
                   <property name="relx">0.1</property>
                   <property name="rely">0.2</property>
                   <property name="x">0</property>
@@ -303,7 +303,7 @@
                 <property name="width">200</property>
                 <layout manager="place">
                   <property name="anchor">nw</property>
-                  <property name="relheight">0.5</property>
+                  <property name="relheight">0.65</property>
                   <property name="relwidth">0.9</property>
                   <property name="relx">0.07</property>
                   <property name="rely">0.4</property>
@@ -351,7 +351,7 @@
                     <layout manager="place">
                       <property name="anchor">nw</property>
                       <property name="relx">0.1</property>
-                      <property name="rely">0.4</property>
+                      <property name="rely">0.35</property>
                       <property name="x">0</property>
                       <property name="y">0</property>
                     </layout>
@@ -361,11 +361,11 @@
                   <object class="ttk.Label" id="label_mutation_rate">
                     <property name="justify">left</property>
                     <property name="takefocus">false</property>
-                    <property name="text" translatable="yes">Mutation rate:</property>
+                    <property name="text" translatable="yes">Mutation chance:</property>
                     <layout manager="place">
                       <property name="anchor">nw</property>
                       <property name="relx">0.2</property>
-                      <property name="rely">0.65</property>
+                      <property name="rely">0.7</property>
                       <property name="x">0</property>
                       <property name="y">0</property>
                     </layout>
@@ -373,8 +373,10 @@
                 </child>
                 <child>
                   <object class="ttk.Entry" id="entry_mutation_rate">
-                    <property name="justify">right</property>
+                    <property name="font">{C059} 12 {}</property>
+                    <property name="justify">center</property>
                     <property name="takefocus">true</property>
+                    <property name="text" translatable="yes">0</property>
                     <property name="textvariable">string:mutation_rate</property>
                     <property name="validate">focusout</property>
                     <property name="validatecommand">mutation_rate_validate_callback</property>
@@ -395,7 +397,83 @@
                     <layout manager="place">
                       <property name="anchor">nw</property>
                       <property name="relx">0.77</property>
-                      <property name="rely">0.65</property>
+                      <property name="rely">0.7</property>
+                      <property name="x">0</property>
+                      <property name="y">0</property>
+                    </layout>
+                  </object>
+                </child>
+                <child>
+                  <object class="ttk.Label" id="label_population_size">
+                    <property name="justify">left</property>
+                    <property name="takefocus">false</property>
+                    <property name="text" translatable="yes">Population size:</property>
+                    <layout manager="place">
+                      <property name="anchor">nw</property>
+                      <property name="relx">0.2</property>
+                      <property name="rely">0.55</property>
+                      <property name="x">0</property>
+                      <property name="y">0</property>
+                    </layout>
+                  </object>
+                </child>
+                <child>
+                  <object class="ttk.Entry" id="entry_population_size">
+                    <property name="font">{C059} 12 {}</property>
+                    <property name="justify">center</property>
+                    <property name="takefocus">true</property>
+                    <property name="text" translatable="yes">500</property>
+                    <property name="textvariable">string:population_size</property>
+                    <property name="validate">focusout</property>
+                    <property name="validatecommand">population_size_validate_callback</property>
+                    <layout manager="place">
+                      <property name="anchor">nw</property>
+                      <property name="relwidth">.15</property>
+                      <property name="relx">0.6</property>
+                      <property name="rely">0.50</property>
+                      <property name="x">0</property>
+                      <property name="y">0</property>
+                    </layout>
+                  </object>
+                </child>
+                <child>
+                  <object class="ttk.Label" id="label_2">
+                    <property name="text" translatable="yes">Elitism:</property>
+                    <layout manager="place">
+                      <property name="anchor">nw</property>
+                      <property name="relx">0.2</property>
+                      <property name="rely">0.85</property>
+                      <property name="x">0</property>
+                      <property name="y">0</property>
+                    </layout>
+                  </object>
+                </child>
+                <child>
+                  <object class="ttk.Entry" id="entry_elitism">
+                    <property name="font">{C059} 12 {}</property>
+                    <property name="justify">center</property>
+                    <property name="takefocus">true</property>
+                    <property name="text" translatable="yes">10</property>
+                    <property name="textvariable">string:elitism</property>
+                    <property name="validate">focusout</property>
+                    <property name="validatecommand">elitism_validate_callback</property>
+                    <layout manager="place">
+                      <property name="anchor">nw</property>
+                      <property name="relwidth">.15</property>
+                      <property name="relx">0.6</property>
+                      <property name="rely">.8</property>
+                      <property name="x">0</property>
+                      <property name="y">0</property>
+                    </layout>
+                  </object>
+                </child>
+                <child>
+                  <object class="ttk.Label" id="label_3">
+                    <property name="text" translatable="yes">%</property>
+                    <layout manager="place">
+                      <property name="anchor">nw</property>
+                      <property name="relx">0.77</property>
+                      <property name="rely">0.84</property>
                       <property name="x">0</property>
                       <property name="y">0</property>
                     </layout>
@@ -518,7 +596,7 @@
               <property name="relheight">0.06</property>
               <property name="relwidth">0.8</property>
               <property name="relx">0.1</property>
-              <property name="rely">0.88</property>
+              <property name="rely">0.93</property>
               <property name="x">0</property>
               <property name="y">0</property>
             </layout>
@@ -532,8 +610,8 @@
             <property name="text" translatable="yes">Progress:</property>
             <layout manager="place">
               <property name="anchor">nw</property>
-              <property name="relx">0.33</property>
-              <property name="rely">0.8</property>
+              <property name="relx">0.39</property>
+              <property name="rely">0.88</property>
               <property name="x">0</property>
               <property name="y">0</property>
             </layout>
@@ -547,8 +625,8 @@
             <property name="text" translatable="yes">%</property>
             <layout manager="place">
               <property name="anchor">nw</property>
-              <property name="relx">0.55</property>
-              <property name="rely">0.8</property>
+              <property name="relx">0.575</property>
+              <property name="rely">0.88</property>
               <property name="x">0</property>
               <property name="y">0</property>
             </layout>
@@ -579,9 +657,9 @@
             <property name="text" translatable="yes">0</property>
             <layout manager="place">
               <property name="anchor">nw</property>
-              <property name="relwidth">.06</property>
-              <property name="relx">.48</property>
-              <property name="rely">.8</property>
+              <property name="relwidth">.05</property>
+              <property name="relx">.52</property>
+              <property name="rely">.88</property>
               <property name="x">0</property>
               <property name="y">0</property>
             </layout>

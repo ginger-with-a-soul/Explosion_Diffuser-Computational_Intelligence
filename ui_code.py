@@ -6,6 +6,7 @@ import psutil  # multi-platform library for system resource usage tracking
 from random import choices
 from string import ascii_lowercase  # used to generate a list of available symbols
 import bruteforce_iterative as bf
+import genetic_simulated_annealing as gsa
 
 PROJECT_PATH = os.path.dirname(__file__)
 PROJECT_UI = os.path.join(PROJECT_PATH, "ui.ui")
@@ -33,6 +34,9 @@ class UiApp:
     def initialize_variables(self):
         self.k = 5
         self.n = 5
+        self.population_size = 500
+        self.elitism = 10
+        self.mutation_rate = 0
         self.problem = ''
         self.available_symbols = list(ascii_lowercase) + [str(i) for i in range(10)]
         # numerical symbols represent a map of available symbols where keys are numbers used for checking current best solution in algorithms that generate variations with numbers only. Key values start with 1 because our variations start with all 1s and not 0s
@@ -61,6 +65,8 @@ class UiApp:
         self.GENETIC_FLAG = False
         self.ROULETTE_FLAG = False
         self.TOURNAMENT_FLAG = False
+        self.POPULATION_SIZE_FLAG = True
+        self.ELITISM_FLAG = True
 
     def theme(self):
         # root.tk.call locates the theme package and selects styles we wish
@@ -134,10 +140,11 @@ class UiApp:
             elif self.MONTECARLO_FLAG:
                 ...
             else:
-                if self.TOURNAMENT_FLAG:
-                    ...
-                else:
-                    ...
+                if self.POPULATION_SIZE_FLAG & self.ELITISM_FLAG & self.MUTATION_FLAG:
+                    if self.TOURNAMENT_FLAG:
+                        gsa.search(self.k, self.n, self.population_size, self.mutation_rate, self.elitism, self.output_label, self.mainwindow, self.problem, self.available_symbols_numerical, self.progress, self.TOURNAMENT_FLAG)
+                    else:
+                        ...
 
     def change_theme_callback(self):
         if self.style.theme_use() == 'awdark':
@@ -161,11 +168,15 @@ class UiApp:
         entry_variation_size = self.builder.get_object('entry_input_num_of_symbols')
         entry_mutation_rate = self.builder.get_object('entry_mutation_rate')
         entry_problem = self.builder.get_object('entry_problem')
+        entry_elitism = self.builder.get_object('entry_elitism')
+        entry_population_size = self.builder.get_object('entry_population_size')
 
         self.register_validation(tk.Entry(entry_input_size), self.input_size_validate_callback)
         self.register_validation(tk.Entry(entry_variation_size), self.input_number_validate_callback)
         self.register_validation(tk.Entry(entry_mutation_rate), self.mutation_rate_validate_callback)
         self.register_validation(tk.Entry(entry_problem), self.random_problem_validate_callback)
+        self.register_validation(tk.Entry(entry_elitism), self.elitism_validate_callback)
+        self.register_validation(tk.Entry(entry_population_size), self.population_size_validate_callback)
 
     def register_validation(self, entry, callback):
         '''
@@ -212,18 +223,46 @@ class UiApp:
 
     def mutation_rate_validate_callback(self):
 
-        # catches if entry field is empty (default 0% mutation rate then)
+        # catches if entry field is empty (default 0% mutation rate)
         try:
             self.mutation_rate = float(self.builder.get_variable('mutation_rate').get())
         except ValueError:
-            self.MUTATION_FLAG = True
-            return True
+            self.MUTATION_FLAG = False
+            return False
 
         if(self.mutation_rate < 0 or self.mutation_rate > 100):
             self.MUTATION_FLAG = False
             return False
         else:
             self.MUTATION_FLAG = True
+            return True
+
+    def population_size_validate_callback(self):
+        try:
+            self.population_size = int(self.builder.get_variable('population_size').get())
+        except ValueError:
+            self.POPULATION_SIZE_FLAG = False
+            return False
+
+        if(self.population_size < 1 or self.population_size > 10000):
+            self.POPULATION_SIZE_FLAG = False
+            return False
+        else:
+            self.POPULATION_SIZE_FLAG = True
+            return True
+
+    def elitism_validate_callback(self):
+        try:
+            self.elitism = float(self.builder.get_variable('elitism').get())
+        except ValueError:
+            self.ELITISM_FLAG = False
+            return False
+
+        if(self.elitism < 0 or self.elitism > 100):
+            self.ELITISM_FLAG = False
+            return False
+        else:
+            self.ELITISM_FLAG = True
             return True
 
     def random_problem_validate_callback(self):
