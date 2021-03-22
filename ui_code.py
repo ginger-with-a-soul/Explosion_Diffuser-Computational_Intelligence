@@ -4,7 +4,7 @@ import tkinter as tk
 import tkinter.ttk as ttk
 import psutil  # multi-platform library for system resource usage tracking
 from random import choices
-from string import ascii_lowercase # used to generate a list of available symbols
+from string import ascii_lowercase  # used to generate a list of available symbols
 import bruteforce_iterative as bf
 
 PROJECT_PATH = os.path.dirname(__file__)
@@ -29,7 +29,6 @@ class UiApp:
         self.show_resource_usage()
 
         self.bind_validation()
-
 
     def initialize_variables(self):
         self.k = 5
@@ -63,9 +62,8 @@ class UiApp:
         self.ROULETTE_FLAG = False
         self.TOURNAMENT_FLAG = False
 
-
     def theme(self):
-        # root.tk.call locates the theme package and selects styles we wish 
+        # root.tk.call locates the theme package and selects styles we wish
         # to use from that package
         self.theme_abs_path = os.path.abspath('awthemes-10.2.1')
         self.mainwindow.tk.call('lappend', 'auto_path', self.theme_abs_path)
@@ -75,7 +73,6 @@ class UiApp:
         self.style = ttk.Style(self.mainwindow)
         self.style.theme_use('awdark')
         # self.style.theme_use('awlight')
-
 
     def brute_force_callback(self):
         self.BRUTEFORCE_FLAG = True
@@ -95,7 +92,7 @@ class UiApp:
     def roulette_selection_callback(self):
         self.ROULETTE_FLAG = True
         self.ROULETTE_FLAG = not self.ROULETTE_FLAG
-    
+
     def tournament_selection_callback(self):
         self.TOURNAMENT_FLAG = True
         self.ROULETTE_FLAG = not self.TOURNAMENT_FLAG
@@ -110,28 +107,27 @@ class UiApp:
         when printing it in the entry box, adds a blank after each symbol
         for readabillity purposes.
         '''
-        
+
         self.PROBLEM_FLAG = True
         # resets the progress bar
-        self.progress(value = 0)
+        self.progress(value=0)
 
         # clears current solution label
         self.output_label['text'] = ''
 
         entry_field = self.builder.get_object('entry_problem')
         entry_field.delete("0", "end")
-        
-        self.problem = ''.join(choices(self.available_symbols[0:self.n], k = self.k))
-        
-        entry_field.insert(0, ' '.join(self.problem))
 
+        self.problem = ''.join(choices(self.available_symbols[0:self.n], k=self.k))
+
+        entry_field.insert(0, ' '.join(self.problem))
 
     def current_best_solution_validate_callback(self):
         pass
 
     def start_callback(self):
         self.START_FLAG = self.NUMBER_FLAG & self.PROBLEM_FLAG & self.SIZE_FLAG
-        
+
         if self.START_FLAG:
             if self.BRUTEFORCE_FLAG:
                 bf.generate_all(self.k, self.n, self.output_label, self.mainwindow, self.problem, self.available_symbols_numerical, self.progress)
@@ -143,13 +139,11 @@ class UiApp:
                 else:
                     ...
 
-
     def change_theme_callback(self):
         if self.style.theme_use() == 'awdark':
             self.style.theme_use('awlight')
         else:
             self.style.theme_use('awdark')
-
 
     def show_resource_usage(self):
         self.builder.get_variable('cpu_usage').set(psutil.cpu_percent())
@@ -168,8 +162,6 @@ class UiApp:
         entry_mutation_rate = self.builder.get_object('entry_mutation_rate')
         entry_problem = self.builder.get_object('entry_problem')
 
-
-        
         self.register_validation(tk.Entry(entry_input_size), self.input_size_validate_callback)
         self.register_validation(tk.Entry(entry_variation_size), self.input_number_validate_callback)
         self.register_validation(tk.Entry(entry_mutation_rate), self.mutation_rate_validate_callback)
@@ -182,12 +174,12 @@ class UiApp:
         '''
         # reg is the name of our callback function
         reg = entry.register(callback)
-        entry.config(validate = "focusout", validatecommand = (reg, '% P'))
+        entry.config(validate="focusout", validatecommand=(reg, '% P'))
 
     def input_size_validate_callback(self):
 
         self.clear_problem_entry()
-        
+
         try:
             self.k = int(self.builder.get_variable('input_size').get())
         except ValueError:
@@ -210,14 +202,14 @@ class UiApp:
         except ValueError:
             self.NUMBER_FLAG = False
             return False
-        
+
         if self.n < 1 or self.n > 36:
             self.NUMBER_FLAG = False
             return False
         else:
             self.NUMBER_FLAG = True
             return True
-    
+
     def mutation_rate_validate_callback(self):
 
         # catches if entry field is empty (default 0% mutation rate then)
@@ -233,7 +225,7 @@ class UiApp:
         else:
             self.MUTATION_FLAG = True
             return True
-    
+
     def random_problem_validate_callback(self):
         '''
         Gets problem string and then removes any space characters that are
@@ -242,15 +234,15 @@ class UiApp:
         '''
 
         self.problem = (self.builder.get_variable('random_problem').get()).replace(' ', '')
-        
-        self.progress(value = 0)
+
+        self.progress(value=0)
 
         size = len(self.problem)
-        
+
         if size == 0:
             self.PROBLEM_FLAG = False
             return False
-        
+
         self.k = size
         input_size = self.builder.get_object('entry_input_size')
         input_size.delete('0', 'end')
@@ -270,10 +262,9 @@ class UiApp:
         problem.delete('0', 'end')
         self.PROBLEM_FLAG = False
 
-    def progress(self, value = 0):
+    def progress(self, value=0):
         self.progress_bar['value'] = value
         self.progress_tracker['text'] = int(value)
-        
 
     def run(self):
         self.mainwindow.mainloop()
