@@ -86,6 +86,11 @@ def elitism(elitism_rate, population_size):
     '''
 
     num_of_elites = ceil((elitism_rate * 1.0 * population_size))
+    # this check is a fix for 'index out of bounds' error that can occurs when going
+    # 2 by 2 through population with odd number of elements (see 'new_population[i+1] = child_2' line)
+    if (population_size - num_of_elites) % 2 == 1:
+        num_of_elites += 1
+
     elites = []
     if num_of_elites == 0:
         return None, 0
@@ -127,7 +132,9 @@ def roulette_selection(population_size, population, tournament_size):
     fitness_sum = 0.0
     tournament_winners = []
     for _ in range(tournament_size):
-        winner = (population[randint(0, population_size - 1)], 0.0)
+        # 'winner' is a list and not a tuple because we will need to update 3rd item
+        # and tuples are immutable
+        winner = [population[randint(0, population_size - 1)], 0.0]
         fitness_sum += winner[0][0]
         tournament_winners.append(winner)
 
@@ -193,6 +200,18 @@ def mutation(child_1, child_2, mutation_chance):
 
     return (child_1.fitness, child_1.genome), (child_2.fitness, child_2.genome)
 
+def symbolical_problem(k, numerical_problem, num_symbols_map, solution):
+    '''
+    Converts our numerical representation of the problem into symbolical.
+    '''
+    symbolical = []
+
+    for i in range(k):
+        for (key, value) in num_symbols_map.items():
+            if value == solution[i]:
+                symbolical.append(key)
+
+    return symbolical
 
 def search(k, n, population_size, mutation_chance, elitism_rate, output_label, mainwindow, problem, num_symbols_map, progress, tournament_selection_mode):
 
@@ -201,8 +220,9 @@ def search(k, n, population_size, mutation_chance, elitism_rate, output_label, m
 
     elites, num_of_elites = elitism(elitism_rate, population_size)
     num_of_generations = 10000
-    tournament_size = 20
+    tournament_size = 15
 
+    current_best = 0.0
     population = []
     new_population = []
 
@@ -234,9 +254,14 @@ def search(k, n, population_size, mutation_chance, elitism_rate, output_label, m
             heappushpop(elites, (child_2[0], child_2[1]))
 
             for j in range(num_of_elites):
-                if elites[j][0] == k:
-                    print(f'Solution {elites[j][1]} found in generation {generation}')
-                    return
+                if elites[j][0] > current_best:
+                    current_best = elites[j][0]
+                    progress(current_best * 100.0 / k)
+                    output_label['text'] = symbolical_problem(k, problem, num_symbols_map, elites[j][1])
+                    mainwindow.update()
+                    if elites[j][0] == k:
+                        print(f'Solution {elites[j][1]} found in generation {generation}')
+                        return
 
             new_population[i] = child_1
             new_population[i+1] = child_2
