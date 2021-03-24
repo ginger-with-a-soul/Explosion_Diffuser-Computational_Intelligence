@@ -34,15 +34,15 @@ class Variation():
         for i in range(self.k):
             if self.genome[i] == self.problem[i]:
 
-                if problem_dict_copy[self.genome[i]] == 0:
-                    fitness += 0.5
-                else:
+                if problem_dict_copy[self.genome[i]] > 0:
                     fitness += 1.0
+                else:
+                    fitness += 0.25
 
                 problem_dict_copy[self.genome[i]] -= 1
             elif self.genome[i] in problem_dict_copy and problem_dict_copy[self.genome[i]] > 0:
 
-                fitness += 0.5
+                fitness += 0.75
                 problem_dict_copy[self.genome[i]] -= 1
 
         return fitness
@@ -159,6 +159,7 @@ def crossover(length, n, parent_1_genome, parent_2_genome, problem, problem_dict
     child_1 = Variation(length, n, problem, problem_dict, False)
     child_2 = Variation(length, n, problem, problem_dict, False)
 
+
     for i in range(length):
         p = uniform(0.0, 1.0)
         if p < 0.5:
@@ -204,6 +205,6 @@ def search(k, n, population_size, mutation_chance, elitism_rate, output_label, m
             parent_1, parent_2 = selection(tournament_selection_mode, population_size, population, tournament_size)
             print(parent_1, parent_2)
 
-            child_1, child_2 = crossover(k, n, parent_1[1], parent_2[1], problem, problem_dict)
+            child_1, child_2 = crossover(k, n, parent_1[1], parent_2[1], numerical_problem, problem_dict)
             print(child_1, child_2)
             print('\n')
