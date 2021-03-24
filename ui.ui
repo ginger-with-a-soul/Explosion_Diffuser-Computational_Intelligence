@@ -376,7 +376,7 @@
                     <property name="font">{C059} 12 {}</property>
                     <property name="justify">center</property>
                     <property name="takefocus">true</property>
-                    <property name="text" translatable="yes">0</property>
+                    <property name="text" translatable="yes">3</property>
                     <property name="textvariable">string:mutation_rate</property>
                     <property name="validate">focusout</property>
                     <property name="validatecommand">mutation_rate_validate_callback</property>
@@ -518,7 +518,7 @@
             <child>
               <object class="ttk.Entry" id="entry_problem">
                 <property name="cursor">xterm</property>
-                <property name="font">{C059} 16 {}</property>
+                <property name="font">{C059} 15 {}</property>
                 <property name="justify">center</property>
                 <property name="takefocus">true</property>
                 <property name="textvariable">string:random_problem</property>
@@ -527,7 +527,7 @@
                 <layout manager="place">
                   <property name="anchor">nw</property>
                   <property name="relheight">0.12</property>
-                  <property name="relwidth">0.85</property>
+                  <property name="relwidth">1</property>
                   <property name="rely">0.18</property>
                   <property name="x">0</property>
                   <property name="y">0</property>
@@ -569,14 +569,14 @@
             <child>
               <object class="ttk.Label" id="label_current_best">
                 <property name="anchor">center</property>
-                <property name="font">{C059} 16 {}</property>
+                <property name="font">{C059} 15 {}</property>
                 <property name="justify">center</property>
                 <property name="relief">raised</property>
                 <property name="takefocus">false</property>
                 <layout manager="place">
                   <property name="anchor">nw</property>
                   <property name="relheight">.12</property>
-                  <property name="relwidth">.85</property>
+                  <property name="relwidth">1</property>
                   <property name="rely">0.5</property>
                   <property name="x">0</property>
                   <property name="y">0</property>

@@ -35,8 +35,8 @@ class UiApp:
         self.k = 5
         self.n = 5
         self.population_size = 500
-        self.elitism = 10
-        self.mutation_rate = 0
+        self.elitism = 0.1
+        self.mutation_rate = 0.03
         self.problem = ''
         self.available_symbols = list(ascii_lowercase) + [str(i) for i in range(10)]
         # numerical symbols represent a map of available symbols where keys are numbers used for checking current best solution in algorithms that generate variations with numbers only. Key values start with 1 because our variations start with all 1s and not 0s
@@ -81,25 +81,30 @@ class UiApp:
         # self.style.theme_use('awlight')
 
     def brute_force_callback(self):
+        self.clear_problem_entry()
         self.BRUTEFORCE_FLAG = True
         self.GENETIC_FLAG = not self.BRUTEFORCE_FLAG
         self.MONTECARLO_FLAG = not self.BRUTEFORCE_FLAG
 
     def monte_carlo_callback(self):
+        self.clear_problem_entry()
         self.MONTECARLO_FLAG = True
         self.GENETIC_FLAG = not self.MONTECARLO_FLAG
         self.BRUTEFORCE_FLAG = not self.MONTECARLO_FLAG
 
     def genetic_algorithm_callback(self):
+        self.clear_problem_entry()
         self.GENETIC_FLAG = True
         self.MONTECARLO_FLAG = not self.GENETIC_FLAG
         self.BRUTEFORCE_FLAG = not self.GENETIC_FLAG
 
     def roulette_selection_callback(self):
+        self.clear_problem_entry()
         self.ROULETTE_FLAG = True
-        self.ROULETTE_FLAG = not self.ROULETTE_FLAG
+        self.TOURNAMENT_FLAG = not self.ROULETTE_FLAG
 
     def tournament_selection_callback(self):
+        self.clear_problem_entry()
         self.TOURNAMENT_FLAG = True
         self.ROULETTE_FLAG = not self.TOURNAMENT_FLAG
 
@@ -143,8 +148,8 @@ class UiApp:
                 if self.POPULATION_SIZE_FLAG & self.ELITISM_FLAG & self.MUTATION_FLAG:
                     if self.TOURNAMENT_FLAG:
                         gsa.search(self.k, self.n, self.population_size, self.mutation_rate, self.elitism, self.output_label, self.mainwindow, self.problem, self.available_symbols_numerical, self.progress, self.TOURNAMENT_FLAG)
-                    else:
-                        ...
+                    elif self.ROULETTE_FLAG:
+                        gsa.search(self.k, self.n, self.population_size, self.mutation_rate, self.elitism, self.output_label, self.mainwindow, self.problem, self.available_symbols_numerical, self.progress, self.TOURNAMENT_FLAG)
 
     def change_theme_callback(self):
         if self.style.theme_use() == 'awdark':
@@ -197,7 +202,7 @@ class UiApp:
             self.SIZE_FLAG = False
             return False
 
-        if self.k < 1 or self.k > 16:
+        if self.k < 1 or self.k > 21:
             self.SIZE_FLAG = False
             return False
         else:
@@ -223,9 +228,10 @@ class UiApp:
 
     def mutation_rate_validate_callback(self):
 
+        self.clear_problem_entry()
         # catches if entry field is empty (default 0% mutation rate)
         try:
-            self.mutation_rate = float(self.builder.get_variable('mutation_rate').get())
+            self.mutation_rate = (float(self.builder.get_variable('mutation_rate').get())) / 100.0
         except ValueError:
             self.MUTATION_FLAG = False
             return False
@@ -238,6 +244,8 @@ class UiApp:
             return True
 
     def population_size_validate_callback(self):
+        self.clear_problem_entry()
+
         try:
             self.population_size = int(self.builder.get_variable('population_size').get())
         except ValueError:
@@ -252,13 +260,16 @@ class UiApp:
             return True
 
     def elitism_validate_callback(self):
+
+        self.clear_problem_entry()
+
         try:
-            self.elitism = float(self.builder.get_variable('elitism').get())
+            self.elitism = (float(self.builder.get_variable('elitism').get())) / 100.0
         except ValueError:
             self.ELITISM_FLAG = False
             return False
 
-        if(self.elitism < 0 or self.elitism > 100):
+        if(self.elitism < 0.01 or self.elitism > 1):
             self.ELITISM_FLAG = False
             return False
         else:

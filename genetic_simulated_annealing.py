@@ -85,7 +85,7 @@ def elitism(elitism_rate, population_size):
     Elitism rate determines the size of the min heap.
     '''
 
-    num_of_elites = ceil((elitism_rate * population_size) / 100.0)
+    num_of_elites = ceil((elitism_rate * 1.0 * population_size))
     elites = []
     if num_of_elites == 0:
         return None, 0
@@ -127,7 +127,7 @@ def roulette_selection(population_size, population, tournament_size):
     fitness_sum = 0.0
     tournament_winners = []
     for _ in range(tournament_size):
-        winner = (population[randint[0, population_size - 1]], 0.0)
+        winner = (population[randint(0, population_size - 1)], 0.0)
         fitness_sum += winner[0][0]
         tournament_winners.append(winner)
 
@@ -150,17 +150,16 @@ def selection(tournament_mode, population_size, population, tournament_size):
 
     return parent_1, parent_2
 
-def crossover(length, n, parent_1_genome, parent_2_genome, problem, problem_dict):
+def crossover(k, n, parent_1_genome, parent_2_genome, problem, problem_dict):
     '''
     This is the uniform type of crossover - for each gene a coin is tossed to see which
     child gets whose gene.
     '''
 
-    child_1 = Variation(length, n, problem, problem_dict, False)
-    child_2 = Variation(length, n, problem, problem_dict, False)
+    child_1 = Variation(k, n, problem, problem_dict, False)
+    child_2 = Variation(k, n, problem, problem_dict, False)
 
-
-    for i in range(length):
+    for i in range(k):
         p = uniform(0.0, 1.0)
         if p < 0.5:
             child_1.genome.append(parent_1_genome[i])
@@ -168,6 +167,24 @@ def crossover(length, n, parent_1_genome, parent_2_genome, problem, problem_dict
         else:
             child_1.genome.append(parent_2_genome[i])
             child_2.genome.append(parent_1_genome[i])
+
+    fitness = child_1.calculate_fitness()
+    child_1.fitness = fitness
+    fitness = child_2.calculate_fitness()
+    child_2.fitness = fitness
+
+    return child_1, child_2
+
+
+def mutation(child_1, child_2, mutation_chance):
+    for i in range(child_1.k):
+        p = uniform(0.0, 1.0)
+        if p < mutation_chance:
+            child_1.genome[i] = randint(1, child_1.n)
+
+        p = uniform(0.0, 1.0)
+        if p < mutation_chance:
+            child_2.genome[i] = randint(1, child_1.n)
 
     fitness = child_1.calculate_fitness()
     child_1.fitness = fitness
@@ -183,8 +200,8 @@ def search(k, n, population_size, mutation_chance, elitism_rate, output_label, m
     problem_dict = create_problem_dict(k, numerical_problem)
 
     elites, num_of_elites = elitism(elitism_rate, population_size)
-    num_of_generations = 1
-    tournament_size = 4
+    num_of_generations = 10000
+    tournament_size = 20
 
     population = []
     new_population = []
@@ -193,18 +210,35 @@ def search(k, n, population_size, mutation_chance, elitism_rate, output_label, m
     for i in range(population_size):
         variation = Variation(k, n, numerical_problem, problem_dict, True)
 
-        if num_of_elites != 0:
-            heappushpop(elites, (variation.fitness, variation.genome))
+        heappushpop(elites, (variation.fitness, variation.genome))
 
         population.append((variation.fitness, variation.genome))
         new_population.append((variation.fitness, variation.genome))
 
-    for generation in range(num_of_generations):
+    for i in range(num_of_elites):
+        population[i] = elites[i]
+        new_population[i] = elites[i]
 
+    for generation in range(num_of_generations):
+        print(elites)
+        print('\n')
         for i in range(num_of_elites, population_size, 2):
+
             parent_1, parent_2 = selection(tournament_selection_mode, population_size, population, tournament_size)
-            print(parent_1, parent_2)
 
             child_1, child_2 = crossover(k, n, parent_1[1], parent_2[1], numerical_problem, problem_dict)
-            print(child_1, child_2)
-            print('\n')
+
+            child_1, child_2 = mutation(child_1, child_2, mutation_chance)
+
+            heappushpop(elites, (child_1[0], child_1[1]))
+            heappushpop(elites, (child_2[0], child_2[1]))
+
+            for j in range(num_of_elites):
+                if elites[j][0] == k:
+                    print(f'Solution {elites[j][1]} found in generation {generation}')
+                    return
+
+            new_population[i] = child_1
+            new_population[i+1] = child_2
+
+            population = new_population
