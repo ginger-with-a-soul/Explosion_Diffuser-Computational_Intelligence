@@ -47,6 +47,11 @@ class UiApp:
         self.builder.get_variable('algo_group').set('1')
         self.builder.get_variable('gene_group').set('-1')
         self.progress_bar = self.builder.get_object('progressbar')
+        self.timer_variable = 0.0
+        self.timer_label = self.builder.get_object('label_time')
+        # timer_reference is used to store reference to the timer's after function so we can call after_cancel function later
+        self.timer_reference = None
+
 
     def initialize_flags(self):
         '''
@@ -141,15 +146,24 @@ class UiApp:
 
         if self.START_FLAG:
             if self.BRUTEFORCE_FLAG:
+                self.timer()
                 bf.generate_all(self.k, self.n, self.output_label, self.mainwindow, self.problem, self.available_symbols_numerical, self.progress)
+                self.mainwindow.after_cancel(self.timer_reference)
+                self.timer_variable = 0.0
             elif self.MONTECARLO_FLAG:
                 ...
             else:
                 if self.POPULATION_SIZE_FLAG & self.ELITISM_FLAG & self.MUTATION_FLAG:
                     if self.TOURNAMENT_FLAG:
+                        self.timer()
                         gsa.search(self.k, self.n, self.population_size, self.mutation_rate, self.elitism, self.output_label, self.mainwindow, self.problem, self.available_symbols_numerical, self.progress, self.TOURNAMENT_FLAG)
+                        self.mainwindow.after_cancel(self.timer_reference)
+                        self.timer_variable = 0.0
                     elif self.ROULETTE_FLAG:
+                        self.timer()
                         gsa.search(self.k, self.n, self.population_size, self.mutation_rate, self.elitism, self.output_label, self.mainwindow, self.problem, self.available_symbols_numerical, self.progress, self.TOURNAMENT_FLAG)
+                        self.mainwindow.after_cancel(self.timer_reference)
+                        self.timer_variable = 0.0
 
     def change_theme_callback(self):
         if self.style.theme_use() == 'awdark':
@@ -162,6 +176,11 @@ class UiApp:
         self.builder.get_variable('memory_usage').set(psutil.virtual_memory().percent)
         # updates usage stats every 1000ms
         self.mainwindow.after(1000, self.show_resource_usage)
+
+    def timer(self):
+        self.timer_variable += 0.001
+        self.timer_label['text'] = round(self.timer_variable, 3)
+        self.timer_reference = self.mainwindow.after(1, self.timer)
 
     def bind_validation(self):
         '''
@@ -228,7 +247,6 @@ class UiApp:
 
     def mutation_rate_validate_callback(self):
 
-        self.clear_problem_entry()
         # catches if entry field is empty (default 0% mutation rate)
         try:
             self.mutation_rate = (float(self.builder.get_variable('mutation_rate').get())) / 100.0
@@ -244,7 +262,6 @@ class UiApp:
             return True
 
     def population_size_validate_callback(self):
-        self.clear_problem_entry()
 
         try:
             self.population_size = int(self.builder.get_variable('population_size').get())
@@ -260,8 +277,6 @@ class UiApp:
             return True
 
     def elitism_validate_callback(self):
-
-        self.clear_problem_entry()
 
         try:
             self.elitism = (float(self.builder.get_variable('elitism').get())) / 100.0
