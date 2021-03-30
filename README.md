@@ -1,6 +1,6 @@
-## Explosion-Diffuser
+## Summary:
 
-My take on generating a combinatorial explosion and searching through it for a match using multiple optimization techniques.<br>
+eXplosion Diffuser represents my take on generating a combinatorial explosion and searching through it for a match using computer vision techniques.<br>
 The combinatorial explosion stems from generation of all variations, with symbol repetition, of length `K` using a set of symbols of length `N`:
 `N`<sup>`K`</sup> total number of variations. <br>
 
@@ -11,6 +11,18 @@ The combinatorial explosion stems from generation of all variations, with symbol
 `git clone https://github.com/ginger-with-a-soul/Explosion_Diffuser-Computational_Intelligence.git` <br>
 `cd ~/Explosion_Diffuser-Computational_Intelligence/runnable` <br>
 `./make` <br>
+
+---
+
+### Requirements:
+
+Python 3.8+ <br>
+The folder _runnable_ contains all of the packages you need already prepared using [PyInstaller](https://github.com/pyinstaller/pyinstaller). Because of that no extra installation is needed. <br><br>
+Packages used:
+* [Tkinter](https://docs.python.org/3/library/tkinter.html)
+* [Pygubu](https://github.com/alejandroautalan/pygubu)
+* [Psutil](https://github.com/giampaolo/psutil)
+* [p5](https://p5.readthedocs.io/en/latest/)
 
 ---
 
