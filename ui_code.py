@@ -52,7 +52,6 @@ class UiApp:
         # timer_reference is used to store reference to the timer's after function so we can call after_cancel function later
         self.timer_reference = None
 
-
     def initialize_flags(self):
         '''
         Initializes flags used to communicate frontend and backend states.

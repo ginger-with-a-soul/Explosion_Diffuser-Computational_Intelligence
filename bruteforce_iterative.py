@@ -1,5 +1,5 @@
 '''
-Iterative bruteforce algorithm for generating all 
+Iterative bruteforce algorithm for generating all
 variations that are k long using n different symbols
 '''
 

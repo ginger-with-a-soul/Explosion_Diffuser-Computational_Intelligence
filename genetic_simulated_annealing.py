@@ -213,16 +213,72 @@ def symbolical_problem(k, numerical_problem, num_symbols_map, solution):
 
     return symbolical
 
+
+def simulated_annealing(genome, iterations, n, k, problem, problem_dict):
+    '''
+    Simulated annealing tries to improve current best genome by replacing a random gene of that
+    genome with another random gene from the problem set.
+    If the newly created genome is better than the original one, it will be sent back and added
+    to the population. This results in faster convergence towards a solution (or a local max).
+    If the newly created genome is not better that the original one, there is a chance that the
+    new genome will be chosen despite being worse in regards to it's fitness. Because of this
+    our convergence might be able to avoid a local maximum. In my implementation, the new genome
+    will be added to the elites only if it's better than the worst elite.
+    '''
+
+    new_genome = Variation(k, n, problem, problem_dict, False)
+    new_genome.genome = genome[1]
+    new_genome.fitness = genome[0]
+    current = Variation(k, n, problem, problem_dict, False)
+    current.genome = genome[1]
+    current.fitness = genome[0]
+    maximum = Variation(k, n, problem, problem_dict, False)
+    maximum.genome = genome[1]
+    maximum.fitness = genome[0]
+
+    print(f'SA in: {new_genome.fitness}, {new_genome.genome}')
+    print(f'MAX in: {maximum.fitness, maximum.genome}')
+
+    for i in range(iterations):
+        current.genome = new_genome.genome
+        current.genome[randint(0, k - 1)] = randint(1, n)
+
+        current.fitness = current.calculate_fitness()
+
+        if current.fitness > new_genome.fitness:
+            new_genome.genome = current.genome
+            new_genome.fitness = current.fitness
+            # this if check should be removed if we want to return a genome that can be worse than the one we started with
+            if maximum.fitness < current.fitness:
+                print('IN MAXXXX!!!!!')
+                maximum.genome = current.genome
+                maximum.fitness = maximum.calculate_fitness()
+        else:
+            p = 1.0 / (i + 1)**0.5
+            q = uniform(0, 1)
+            if p > q:
+                new_genome.genome = current.genome
+                new_genome.fitness = current.fitness
+        print(f'MAX {i}: {maximum.fitness, maximum.genome}')
+    print(f'SA out: {maximum.fitness}, {maximum.genome}')
+    return (maximum.fitness, maximum.genome)
+    # return (new_genome.fitness, new_genome.genome)
+
+
 def search(k, n, population_size, mutation_chance, elitism_rate, output_label, mainwindow, problem, num_symbols_map, progress, tournament_selection_mode):
 
     numerical_problem = transform_problem_to_numerical(k, problem, num_symbols_map)
     problem_dict = create_problem_dict(k, numerical_problem)
 
     elites, num_of_elites = elitism(elitism_rate, population_size)
-    num_of_generations = 10000
+    num_of_generations = 10
     tournament_size = 15
 
-    current_best = 0.0
+    # can't make this a touple because touples are immutable
+    current_best_fitness = 0.0
+    current_best_genome = []
+    sa_fitness = 0.0
+    sa_genome = []
     population = []
     new_population = []
 
@@ -235,6 +291,7 @@ def search(k, n, population_size, mutation_chance, elitism_rate, output_label, m
         population.append((variation.fitness, variation.genome))
         new_population.append((variation.fitness, variation.genome))
 
+    # this seems unneeded but it absolutely is not
     for i in range(num_of_elites):
         population[i] = elites[i]
         new_population[i] = elites[i]
@@ -253,17 +310,28 @@ def search(k, n, population_size, mutation_chance, elitism_rate, output_label, m
             heappushpop(elites, (child_1[0], child_1[1]))
             heappushpop(elites, (child_2[0], child_2[1]))
 
+
             for j in range(num_of_elites):
-                if elites[j][0] > current_best:
-                    current_best = elites[j][0]
-                    progress(current_best * 100.0 / k)
+                if elites[j][0] > current_best_fitness:
+                    current_best_fitness = elites[j][0]
+                    current_best_genome = elites[j][1]
+                    progress(current_best_fitness * 100.0 / k)
                     output_label['text'] = symbolical_problem(k, problem, num_symbols_map, elites[j][1])
                     mainwindow.update()
                     if elites[j][0] == k:
                         print(f'Solution {elites[j][1]} found in generation {generation}')
                         return
 
-            new_population[i] = child_1
-            new_population[i+1] = child_2
 
-            population = new_population
+            print(f'Before SA: {current_best_fitness, current_best_genome}')
+            #sa_fitness, sa_genome = simulated_annealing((current_best_fitness, current_best_genome), 10, n, k, problem, problem_dict)
+            #print(f'After SA: {sa_fitness, sa_genome}\n')
+            #heappushpop(elites, (sa_fitness, sa_genome))
+
+            new_population[i] = child_1
+            new_population[i + 1] = child_2
+
+        population = new_population
+
+        # overrides a random genome with the one (the best in the whole population) that stems from the simulated annealing. This can seed a lot of the same genomes thus decreasing gene diversity resulting in a local maximum convergence. If I decide that simulated annealing should return the best genome (never the worse genome than it got), then this line of code should be deleted (we will be trying to improve our current best genome but we won't be adding so many of the same genomes in the population). If my simulated annealing should return a genome that can be worse than the one it started with, then this line of code should be uncommented. There is a probability 2/population_size that this sa_genome will be overwriten by the child_1 or child_2 thus never be in the 'selection'
+        #new_population[randint(0, population_size-1)] = (sa_fitness, sa_genome)
