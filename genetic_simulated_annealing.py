@@ -19,7 +19,7 @@ class Variation():
             self.fitness = self.calculate_fitness()
         else:
             self.genome = []
-            self.fitness = 0
+            self.fitness = 0.0
 
     def calculate_fitness(self):
         '''
@@ -175,10 +175,8 @@ def crossover(k, n, parent_1_genome, parent_2_genome, problem, problem_dict):
             child_1.genome.append(parent_2_genome[i])
             child_2.genome.append(parent_1_genome[i])
 
-    fitness = child_1.calculate_fitness()
-    child_1.fitness = fitness
-    fitness = child_2.calculate_fitness()
-    child_2.fitness = fitness
+    child_1.fitness = child_1.calculate_fitness()
+    child_2.fitness = child_2.calculate_fitness()
 
     return child_1, child_2
 
@@ -193,10 +191,8 @@ def mutation(child_1, child_2, mutation_chance):
         if p < mutation_chance:
             child_2.genome[i] = randint(1, child_1.n)
 
-    fitness = child_1.calculate_fitness()
-    child_1.fitness = fitness
-    fitness = child_2.calculate_fitness()
-    child_2.fitness = fitness
+    child_1.fitness = child_1.calculate_fitness()
+    child_2.fitness = child_2.calculate_fitness()
 
     return (child_1.fitness, child_1.genome), (child_2.fitness, child_2.genome)
 
@@ -227,41 +223,37 @@ def simulated_annealing(genome, iterations, n, k, problem, problem_dict):
     '''
 
     new_genome = Variation(k, n, problem, problem_dict, False)
-    new_genome.genome = genome[1]
+    # this line of code is really important because new_genome.genome = genome[1] would create a reference to the genome[1] so any changes would reflect on both. Doing it this way we create a shallow copy to genome[1]. This caused a bug that I've been searching for literally from 8 - 12 hours. Guess what mistake I won't make ever again...
+    new_genome.genome = genome[1][:]
     new_genome.fitness = genome[0]
     current = Variation(k, n, problem, problem_dict, False)
-    current.genome = genome[1]
+    current.genome = genome[1][:]
     current.fitness = genome[0]
-    maximum = Variation(k, n, problem, problem_dict, False)
-    maximum.genome = genome[1]
-    maximum.fitness = genome[0]
-
-    print(f'SA in: {new_genome.fitness}, {new_genome.genome}')
-    print(f'MAX in: {maximum.fitness, maximum.genome}')
+    maximum_genome = genome[1][:]
+    maximum_fitness = genome[0]
 
     for i in range(iterations):
-        current.genome = new_genome.genome
+        current.genome = new_genome.genome[:]
         current.genome[randint(0, k - 1)] = randint(1, n)
 
         current.fitness = current.calculate_fitness()
 
         if current.fitness > new_genome.fitness:
-            new_genome.genome = current.genome
+            new_genome.genome = current.genome[:]
             new_genome.fitness = current.fitness
             # this if check should be removed if we want to return a genome that can be worse than the one we started with
-            if maximum.fitness < current.fitness:
-                print('IN MAXXXX!!!!!')
-                maximum.genome = current.genome
-                maximum.fitness = maximum.calculate_fitness()
+            if maximum_fitness < current.fitness:
+                print(f'SA IMPROVEMENT!\nOld genome: {maximum_fitness, maximum_genome}\nNew genome: {current.fitness, current.genome}')
+                maximum_genome = current.genome[:]
+                maximum_fitness = current.fitness
         else:
             p = 1.0 / (i + 1)**0.5
             q = uniform(0, 1)
             if p > q:
-                new_genome.genome = current.genome
+                new_genome.genome = current.genome[:]
                 new_genome.fitness = current.fitness
-        print(f'MAX {i}: {maximum.fitness, maximum.genome}')
-    print(f'SA out: {maximum.fitness}, {maximum.genome}')
-    return (maximum.fitness, maximum.genome)
+
+    return (maximum_fitness, maximum_genome)
     # return (new_genome.fitness, new_genome.genome)
 
 
@@ -271,8 +263,8 @@ def search(k, n, population_size, mutation_chance, elitism_rate, output_label, m
     problem_dict = create_problem_dict(k, numerical_problem)
 
     elites, num_of_elites = elitism(elitism_rate, population_size)
-    num_of_generations = 10
-    tournament_size = 15
+    num_of_generations = 1000
+    tournament_size = 10
 
     # can't make this a touple because touples are immutable
     current_best_fitness = 0.0
@@ -291,14 +283,12 @@ def search(k, n, population_size, mutation_chance, elitism_rate, output_label, m
         population.append((variation.fitness, variation.genome))
         new_population.append((variation.fitness, variation.genome))
 
-    # this seems unneeded but it absolutely is not
+    # this seems unneeded but it absolutely is not. [0, num_of_elites-1] is the spot for the elites in my pupulation and it seems redundant but keeping it here seems to speed up the search. If I was to remove this I would need to make sure my loop through population starts from 0 and not from num_of_elites
     for i in range(num_of_elites):
         population[i] = elites[i]
         new_population[i] = elites[i]
 
     for generation in range(num_of_generations):
-        print(elites)
-        print('\n')
         for i in range(num_of_elites, population_size, 2):
 
             parent_1, parent_2 = selection(tournament_selection_mode, population_size, population, tournament_size)
@@ -310,28 +300,25 @@ def search(k, n, population_size, mutation_chance, elitism_rate, output_label, m
             heappushpop(elites, (child_1[0], child_1[1]))
             heappushpop(elites, (child_2[0], child_2[1]))
 
-
             for j in range(num_of_elites):
                 if elites[j][0] > current_best_fitness:
+                    current_best_genome = elites[j][1][:]
                     current_best_fitness = elites[j][0]
-                    current_best_genome = elites[j][1]
+
                     progress(current_best_fitness * 100.0 / k)
-                    output_label['text'] = symbolical_problem(k, problem, num_symbols_map, elites[j][1])
+                    output_label['text'] = symbolical_problem(k, problem, num_symbols_map, current_best_genome)
                     mainwindow.update()
+
                     if elites[j][0] == k:
                         print(f'Solution {elites[j][1]} found in generation {generation}')
                         return
 
-
-            print(f'Before SA: {current_best_fitness, current_best_genome}')
-            #sa_fitness, sa_genome = simulated_annealing((current_best_fitness, current_best_genome), 10, n, k, problem, problem_dict)
-            #print(f'After SA: {sa_fitness, sa_genome}\n')
-            #heappushpop(elites, (sa_fitness, sa_genome))
+            sa_fitness, sa_genome = simulated_annealing((current_best_fitness, current_best_genome), 10, n, k, numerical_problem, problem_dict)
+            if sa_fitness > current_best_fitness or sa_genome != current_best_genome:
+                heappushpop(elites, (sa_fitness, sa_genome))
+                new_population[randint(0, population_size - 1)]
 
             new_population[i] = child_1
             new_population[i + 1] = child_2
-
+        print(f'Generation: {generation}\nCurrent best solution: {current_best_fitness, current_best_genome}\n')
         population = new_population
-
-        # overrides a random genome with the one (the best in the whole population) that stems from the simulated annealing. This can seed a lot of the same genomes thus decreasing gene diversity resulting in a local maximum convergence. If I decide that simulated annealing should return the best genome (never the worse genome than it got), then this line of code should be deleted (we will be trying to improve our current best genome but we won't be adding so many of the same genomes in the population). If my simulated annealing should return a genome that can be worse than the one it started with, then this line of code should be uncommented. There is a probability 2/population_size that this sa_genome will be overwriten by the child_1 or child_2 thus never be in the 'selection'
-        #new_population[randint(0, population_size-1)] = (sa_fitness, sa_genome)
