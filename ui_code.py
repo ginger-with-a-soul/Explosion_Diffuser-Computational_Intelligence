@@ -60,6 +60,8 @@ class UiApp:
         they have a valid default state.
         '''
 
+
+        self.DONE_FLAG = [True] # it's a list because it needs to be mutable to be sent to threads
         self.MUTATION_FLAG = True
         self.PROBLEM_FLAG = False
         self.SIZE_FLAG = True
@@ -138,22 +140,23 @@ class UiApp:
 
 
     def start_callback(self):
-        self.START_FLAG = self.NUMBER_FLAG & self.PROBLEM_FLAG & self.SIZE_FLAG & (self.BRUTEFORCE_FLAG | self.MONTECARLO_FLAG | self.GENETIC_FLAG)
+        self.START_FLAG = self.DONE_FLAG[0] & self.NUMBER_FLAG & self.PROBLEM_FLAG & self.SIZE_FLAG & (self.BRUTEFORCE_FLAG | self.MONTECARLO_FLAG | self.GENETIC_FLAG)
 
         if self.START_FLAG:
+            self.DONE_FLAG[0] = False
             self.timer_variable = 0.0
             self.timer()
             if self.BRUTEFORCE_FLAG:
                 # daemon parameter True indicates that our threads stop when we close the main program
-                threading.Thread(target=bf.generate_all, args=[self.k, self.n, self.output_label, self.mainwindow, self.problem, self.available_symbols_numerical, self.progress, self.timer_reference], daemon=True)
+                threading.Thread(target=bf.generate_all, args=[self.k, self.n, self.output_label,self.mainwindow, self.problem, self.available_symbols_numerical, self.progress, self.DONE_FLAG], daemon=True).start()
             elif self.MONTECARLO_FLAG:
                 ...
             else:
                 if self.POPULATION_SIZE_FLAG & self.ELITISM_FLAG & self.MUTATION_FLAG:
                     if self.TOURNAMENT_FLAG:
-                        threading.Thread(target=gsa.search, args = [self.k, self.n, self.population_size, self.mutation_rate, self.elitism, self.output_label, self.mainwindow, self.problem, self.available_symbols_numerical, self.progress, self.TOURNAMENT_FLAG, self.timer_reference], daemon=True).start()
+                        threading.Thread(target=gsa.search, args = [self.k, self.n, self.population_size, self.mutation_rate, self.elitism, self.output_label, self.mainwindow, self.problem, self.available_symbols_numerical, self.progress, self.TOURNAMENT_FLAG, self.DONE_FLAG], daemon=True).start()
                     else:
-                        threading.Thread(target=gsa.search, args=[self.k, self.n, self.population_size, self.mutation_rate, self.elitism, self.output_label, self.mainwindow, self.problem, self.available_symbols_numerical, self.progress, self.TOURNAMENT_FLAG, self.timer_reference], daemon=True).start()
+                        threading.Thread(target=gsa.search, args=[self.k, self.n, self.population_size, self.mutation_rate, self.elitism, self.output_label, self.mainwindow, self.problem, self.available_symbols_numerical, self.progress, self.TOURNAMENT_FLAG, self.DONE_FLAG], daemon=True).start()
 
     def change_theme_callback(self):
         if self.style.theme_use() == 'awdark':
@@ -167,9 +170,10 @@ class UiApp:
         # updates usage stats every 1000ms
         self.mainwindow.after(1000, self.show_resource_usage)
 
+
     def timer(self):
         self.timer_variable += 1
-        self.timer_label['text'] = round(self.timer_variable, 3)
+        self.timer_label['text'] = int(self.timer_variable)
         self.timer_reference = self.mainwindow.after(1000, self.timer)
 
     def bind_validation(self):

@@ -257,7 +257,7 @@ def simulated_annealing(genome, iterations, n, k, problem, problem_dict):
     # return (new_genome.fitness, new_genome.genome)
 
 
-def search(k, n, population_size, mutation_chance, elitism_rate, output_label, mainwindow, problem, num_symbols_map, progress, tournament_selection_mode, timer_reference):
+def search(k, n, population_size, mutation_chance, elitism_rate, output_label, mainwindow, problem, num_symbols_map, progress, tournament_selection_mode, done_flag):
 
     numerical_problem = transform_problem_to_numerical(k, problem, num_symbols_map)
     problem_dict = create_problem_dict(k, numerical_problem)
@@ -296,6 +296,9 @@ def search(k, n, population_size, mutation_chance, elitism_rate, output_label, m
         #new_population[i] = elites[i]
 
     for generation in range(num_of_generations):
+        if generation == num_of_generations-1:
+            done_flag[0] = True
+            return
         for i in range(0, population_size, 2):
 
             parent_1, parent_2 = selection(tournament_selection_mode, population_size, population, tournament_size)
@@ -320,8 +323,7 @@ def search(k, n, population_size, mutation_chance, elitism_rate, output_label, m
 
                     if elites[j][0] == k:
                         print(f'Solution {elites[j][1]} found in generation {generation}')
-                        mainwindow.after_cancel(timer_reference)
-                        print(timer_reference)
+                        done_flag[0] = True
                         return
 
             sa_fitness, sa_genome = simulated_annealing((current_best_fitness, current_best_genome), 20, n, k, numerical_problem, problem_dict)
