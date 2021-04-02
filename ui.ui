@@ -346,7 +346,7 @@
                     <property name="takefocus">true</property>
                     <property name="text" translatable="yes">Roulette Selection</property>
                     <property name="textvariable">string:roulette_selection</property>
-                    <property name="value">5</property>
+                    <property name="value">2</property>
                     <property name="variable">string:gene_group</property>
                     <layout manager="place">
                       <property name="anchor">nw</property>

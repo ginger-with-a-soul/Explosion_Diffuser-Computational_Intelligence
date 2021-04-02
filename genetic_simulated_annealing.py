@@ -257,7 +257,7 @@ def simulated_annealing(genome, iterations, n, k, problem, problem_dict):
     # return (new_genome.fitness, new_genome.genome)
 
 
-def search(k, n, population_size, mutation_chance, elitism_rate, output_label, mainwindow, problem, num_symbols_map, progress, tournament_selection_mode):
+def search(k, n, population_size, mutation_chance, elitism_rate, output_label, mainwindow, problem, num_symbols_map, progress, tournament_selection_mode, timer_reference):
 
     numerical_problem = transform_problem_to_numerical(k, problem, num_symbols_map)
     problem_dict = create_problem_dict(k, numerical_problem)
@@ -279,7 +279,7 @@ def search(k, n, population_size, mutation_chance, elitism_rate, output_label, m
     # used to store the original mutation_chance rate so we can restore it if and when needed
     initial_mutation_chance = mutation_chance
     # determines the increment by how much we want to increase our mutation_chance (current mutation_chance will be calculated as mutation_chance + mutation_chance*mutation_chance_increment - percentage increment) when the dynamic mutation kicks in
-    mutation_chance_increment = 0.5
+    mutation_chance_increment = 0.2
 
     # initial population generation
     for i in range(population_size):
@@ -320,9 +320,11 @@ def search(k, n, population_size, mutation_chance, elitism_rate, output_label, m
 
                     if elites[j][0] == k:
                         print(f'Solution {elites[j][1]} found in generation {generation}')
+                        mainwindow.after_cancel(timer_reference)
+                        print(timer_reference)
                         return
 
-            sa_fitness, sa_genome = simulated_annealing((current_best_fitness, current_best_genome), 10, n, k, numerical_problem, problem_dict)
+            sa_fitness, sa_genome = simulated_annealing((current_best_fitness, current_best_genome), 20, n, k, numerical_problem, problem_dict)
             if sa_fitness > current_best_fitness or sa_genome != current_best_genome:
                 no_improvement_num = 0
                 heappushpop(elites, (sa_fitness, sa_genome))
@@ -336,7 +338,7 @@ def search(k, n, population_size, mutation_chance, elitism_rate, output_label, m
         if no_improvement_num >= int(num_of_generations * dynamic_mutation_rate):
             mutation_chance += mutation_chance * mutation_chance_increment
             print(f'No improvement: {no_improvement_num}, mutation chance: {mutation_chance}')
-            if mutation_chance > 0.45:
-                # we will cap out our mutation_chance to 45%
-                mutation_chance = 0.45
+            if mutation_chance > 0.3:
+                # we will cap out our mutation_chance to 30%
+                mutation_chance = 0.3
         population = new_population

@@ -7,6 +7,7 @@ from random import choices
 from string import ascii_lowercase  # used to generate a list of available symbols
 import bruteforce_iterative as bf
 import genetic_simulated_annealing as gsa
+import threading # threading in Python does not work line in other programming languages (Google GIL). I've implemented threading because I need faster context switching for the UI and Visualization drawing
 
 PROJECT_PATH = os.path.dirname(__file__)
 PROJECT_UI = os.path.join(PROJECT_PATH, "ui.ui")
@@ -45,7 +46,7 @@ class UiApp:
         self.progress_tracker = self.builder.get_object('label_percentage_tracker')
         self.current_solution = ''
         self.builder.get_variable('algo_group').set('1')
-        self.builder.get_variable('gene_group').set('-1')
+        self.builder.get_variable('gene_group').set('1')
         self.progress_bar = self.builder.get_object('progressbar')
         self.timer_variable = 0.0
         self.timer_label = self.builder.get_object('label_time')
@@ -68,7 +69,7 @@ class UiApp:
         self.MONTECARLO_FLAG = False
         self.GENETIC_FLAG = False
         self.ROULETTE_FLAG = False
-        self.TOURNAMENT_FLAG = False
+        self.TOURNAMENT_FLAG = True
         self.POPULATION_SIZE_FLAG = True
         self.ELITISM_FLAG = True
 
@@ -135,32 +136,24 @@ class UiApp:
 
         entry_field.insert(0, ' '.join(self.problem))
 
-    def current_best_solution_validate_callback(self):
-        pass
 
     def start_callback(self):
-        self.START_FLAG = self.NUMBER_FLAG & self.PROBLEM_FLAG & self.SIZE_FLAG
+        self.START_FLAG = self.NUMBER_FLAG & self.PROBLEM_FLAG & self.SIZE_FLAG & (self.BRUTEFORCE_FLAG | self.MONTECARLO_FLAG | self.GENETIC_FLAG)
 
         if self.START_FLAG:
+            self.timer_variable = 0.0
+            self.timer()
             if self.BRUTEFORCE_FLAG:
-                self.timer()
-                bf.generate_all(self.k, self.n, self.output_label, self.mainwindow, self.problem, self.available_symbols_numerical, self.progress)
-                self.mainwindow.after_cancel(self.timer_reference)
-                self.timer_variable = 0.0
+                # daemon parameter True indicates that our threads stop when we close the main program
+                threading.Thread(target=bf.generate_all, args=[self.k, self.n, self.output_label, self.mainwindow, self.problem, self.available_symbols_numerical, self.progress, self.timer_reference], daemon=True)
             elif self.MONTECARLO_FLAG:
                 ...
             else:
                 if self.POPULATION_SIZE_FLAG & self.ELITISM_FLAG & self.MUTATION_FLAG:
                     if self.TOURNAMENT_FLAG:
-                        self.timer()
-                        gsa.search(self.k, self.n, self.population_size, self.mutation_rate, self.elitism, self.output_label, self.mainwindow, self.problem, self.available_symbols_numerical, self.progress, self.TOURNAMENT_FLAG)
-                        self.mainwindow.after_cancel(self.timer_reference)
-                        self.timer_variable = 0.0
-                    elif self.ROULETTE_FLAG:
-                        self.timer()
-                        gsa.search(self.k, self.n, self.population_size, self.mutation_rate, self.elitism, self.output_label, self.mainwindow, self.problem, self.available_symbols_numerical, self.progress, self.TOURNAMENT_FLAG)
-                        self.mainwindow.after_cancel(self.timer_reference)
-                        self.timer_variable = 0.0
+                        threading.Thread(target=gsa.search, args = [self.k, self.n, self.population_size, self.mutation_rate, self.elitism, self.output_label, self.mainwindow, self.problem, self.available_symbols_numerical, self.progress, self.TOURNAMENT_FLAG, self.timer_reference], daemon=True).start()
+                    else:
+                        threading.Thread(target=gsa.search, args=[self.k, self.n, self.population_size, self.mutation_rate, self.elitism, self.output_label, self.mainwindow, self.problem, self.available_symbols_numerical, self.progress, self.TOURNAMENT_FLAG, self.timer_reference], daemon=True).start()
 
     def change_theme_callback(self):
         if self.style.theme_use() == 'awdark':
@@ -175,9 +168,9 @@ class UiApp:
         self.mainwindow.after(1000, self.show_resource_usage)
 
     def timer(self):
-        self.timer_variable += 0.001
+        self.timer_variable += 1
         self.timer_label['text'] = round(self.timer_variable, 3)
-        self.timer_reference = self.mainwindow.after(1, self.timer)
+        self.timer_reference = self.mainwindow.after(1000, self.timer)
 
     def bind_validation(self):
         '''
