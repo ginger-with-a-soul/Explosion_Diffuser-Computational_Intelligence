@@ -273,6 +273,13 @@ def search(k, n, population_size, mutation_chance, elitism_rate, output_label, m
     sa_genome = []
     population = []
     new_population = []
+    # after how many % of the generations where we don't have an improvement to our solution, will dynamic mutation chance kick in
+    dynamic_mutation_rate = 0.05
+    no_improvement_num = 0
+    # used to store the original mutation_chance rate so we can restore it if and when needed
+    initial_mutation_chance = mutation_chance
+    # determines the increment by how much we want to increase our mutation_chance (current mutation_chance will be calculated as mutation_chance + mutation_chance*mutation_chance_increment - percentage increment) when the dynamic mutation kicks in
+    mutation_chance_increment = 0.5
 
     # initial population generation
     for i in range(population_size):
@@ -284,12 +291,12 @@ def search(k, n, population_size, mutation_chance, elitism_rate, output_label, m
         new_population.append((variation.fitness, variation.genome))
 
     # this seems unneeded but it absolutely is not. [0, num_of_elites-1] is the spot for the elites in my pupulation and it seems redundant but keeping it here seems to speed up the search. If I was to remove this I would need to make sure my loop through population starts from 0 and not from num_of_elites
-    for i in range(num_of_elites):
-        population[i] = elites[i]
-        new_population[i] = elites[i]
+    # for i in range(num_of_elites):
+        #population[i] = elites[i]
+        #new_population[i] = elites[i]
 
     for generation in range(num_of_generations):
-        for i in range(num_of_elites, population_size, 2):
+        for i in range(0, population_size, 2):
 
             parent_1, parent_2 = selection(tournament_selection_mode, population_size, population, tournament_size)
 
@@ -302,6 +309,8 @@ def search(k, n, population_size, mutation_chance, elitism_rate, output_label, m
 
             for j in range(num_of_elites):
                 if elites[j][0] > current_best_fitness:
+                    no_improvement_num = 0
+                    mutation_chance = initial_mutation_chance
                     current_best_genome = elites[j][1][:]
                     current_best_fitness = elites[j][0]
 
@@ -315,10 +324,19 @@ def search(k, n, population_size, mutation_chance, elitism_rate, output_label, m
 
             sa_fitness, sa_genome = simulated_annealing((current_best_fitness, current_best_genome), 10, n, k, numerical_problem, problem_dict)
             if sa_fitness > current_best_fitness or sa_genome != current_best_genome:
+                no_improvement_num = 0
                 heappushpop(elites, (sa_fitness, sa_genome))
-                new_population[randint(0, population_size - 1)]
+                new_population[randint(0, population_size - 1)] = (sa_fitness, sa_genome)
 
             new_population[i] = child_1
             new_population[i + 1] = child_2
+
         print(f'Generation: {generation}\nCurrent best solution: {current_best_fitness, current_best_genome}\n')
+        no_improvement_num += 1
+        if no_improvement_num >= int(num_of_generations * dynamic_mutation_rate):
+            mutation_chance += mutation_chance * mutation_chance_increment
+            print(f'No improvement: {no_improvement_num}, mutation chance: {mutation_chance}')
+            if mutation_chance > 0.45:
+                # we will cap out our mutation_chance to 45%
+                mutation_chance = 0.45
         population = new_population

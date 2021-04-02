@@ -103,12 +103,10 @@ class UiApp:
         self.BRUTEFORCE_FLAG = not self.GENETIC_FLAG
 
     def roulette_selection_callback(self):
-        self.clear_problem_entry()
         self.ROULETTE_FLAG = True
         self.TOURNAMENT_FLAG = not self.ROULETTE_FLAG
 
     def tournament_selection_callback(self):
-        self.clear_problem_entry()
         self.TOURNAMENT_FLAG = True
         self.ROULETTE_FLAG = not self.TOURNAMENT_FLAG
 
