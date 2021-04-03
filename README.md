@@ -22,7 +22,7 @@ Packages used:
 * [Tkinter](https://docs.python.org/3/library/tkinter.html)
 * [Pygubu](https://github.com/alejandroautalan/pygubu)
 * [Psutil](https://github.com/giampaolo/psutil)
-* [p5](https://p5.readthedocs.io/en/latest/)
+* [Pygame](https://github.com/pygame/pygame)
 
 ---
 
