@@ -13,10 +13,12 @@ def generate_all(k, n, output_label, mainwindow, problem, num_symbols_map, progr
     Stops search when match is found.
     '''
 
+
     numerical_problem = k * [1]
 
     for i in range(k):
         numerical_problem[i] = num_symbols_map[problem[i]]
+
 
     current_variation = k * [1]
     current_best_fitness = 0
