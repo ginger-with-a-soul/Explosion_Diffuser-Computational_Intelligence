@@ -1,3 +1,7 @@
+from bf_visualizer import Visualizer
+from threading import Thread
+
+
 '''
 Iterative bruteforce algorithm for generating all
 variations that are k long using n different symbols
@@ -12,6 +16,15 @@ def generate_all(k, n, output_label, mainwindow, problem, num_symbols_map, progr
     Every time a better variation is found, it gets printed to UI.
     Stops search when match is found.
     '''
+    visualizer = Visualizer()
+    grid = visualizer.grid
+    total_variations = n ** k
+    current_variation_number = 0
+    progress_percentage = 0.0
+
+    progress_step = 100.0 / (grid.col_num * grid.row_num)
+    # starts the 'run' function from the visualization part
+    Thread(target=visualizer.run, args=[], daemon=True).start()
 
 
     numerical_problem = k * [1]
@@ -25,6 +38,12 @@ def generate_all(k, n, output_label, mainwindow, problem, num_symbols_map, progr
 
     exists_next_variation = True
     while(exists_next_variation):
+        current_variation_number += 1
+
+        progress_percentage = (current_variation_number * 100.0) / (total_variations*1.0)
+        if progress_percentage >= progress_step:
+            progress_step += 100.0 / (grid.col_num * grid.row_num)
+            grid.current_position += 1
 
         new_fitness = fitness(k, current_variation, numerical_problem)
         if(new_fitness > current_best_fitness):
@@ -54,6 +73,7 @@ def generate_all(k, n, output_label, mainwindow, problem, num_symbols_map, progr
             exists_next_variation = False
         else:
             current_variation[index] += 1
+
 
 
 def fitness(k, solution, problem):
