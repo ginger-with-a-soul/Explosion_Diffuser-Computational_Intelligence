@@ -23,7 +23,7 @@ Packages used:
 * [Pygubu](https://github.com/alejandroautalan/pygubu)
 * [Psutil](https://github.com/giampaolo/psutil)
 * [Pygame](https://github.com/pygame/pygame)
-* [Baseconverter](https://github.com/squdle/baseconvert)
+* [Baseconvert](https://github.com/squdle/baseconvert)
 
 ---
 
