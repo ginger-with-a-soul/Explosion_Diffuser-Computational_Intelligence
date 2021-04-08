@@ -1,4 +1,4 @@
-from bf_visualizer import Visualizer
+from visualizer import Visualizer
 from threading import Thread
 from baseconvert import base
 
@@ -18,6 +18,7 @@ def generate_all(k, n, output_label, mainwindow, problem, num_symbols_map, progr
     Stops search when match is found.
     '''
     visualizer = Visualizer()
+    visualizer.mode = 'GRID'
     grid = visualizer.grid
     total_variations = n ** k
     current_variation_number = 0

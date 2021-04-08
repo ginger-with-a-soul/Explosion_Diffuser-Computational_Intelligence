@@ -1,6 +1,8 @@
 from random import uniform, randint
 from math import ceil
 from heapq import heappushpop, heappush
+from threading import Thread
+from visualizer import Visualizer
 
 '''
 Search algorithm based on Genetic algorithm alongside Simulated Annealing
@@ -258,6 +260,11 @@ def simulated_annealing(genome, iterations, n, k, problem, problem_dict):
 
 
 def search(k, n, population_size, mutation_chance, elitism_rate, output_label, mainwindow, problem, num_symbols_map, progress, tournament_selection_mode, done_flag):
+
+    # the visualizing part
+    visualizer = Visualizer()
+    visualizer.mode = 'FIELD'
+    Thread(target=visualizer.run, args=[], daemon=True).start()
 
     numerical_problem = transform_problem_to_numerical(k, problem, num_symbols_map)
     problem_dict = create_problem_dict(k, numerical_problem)

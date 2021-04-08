@@ -326,4 +326,10 @@ class UiApp:
         self.progress_tracker['text'] = int(value)
 
     def run(self):
+        # sets the window position on screen and opens it
+        ws = self.mainwindow.winfo_screenwidth()
+        hs = self.mainwindow.winfo_screenheight()
+        x = (ws / 3) - (860 / 2)
+        y = (hs / 3) - (650 / 2)
+        self.mainwindow.geometry('%dx%d+%d+%d' % (860, 650, x, y))
         self.mainwindow.mainloop()

@@ -1,11 +1,11 @@
 <?xml version='1.0' encoding='utf-8'?>
 <interface version="1.0">
   <object class="tk.Toplevel" id="mainwindow">
-    <property name="height">675</property>
+    <property name="height">650</property>
     <property name="resizable">both</property>
     <property name="takefocus">true</property>
     <property name="title" translatable="yes">eXplosion Diffuser</property>
-    <property name="width">900</property>
+    <property name="width">860</property>
     <child>
       <object class="ttk.Frame" id="main_window">
         <property name="borderwidth">5</property>
