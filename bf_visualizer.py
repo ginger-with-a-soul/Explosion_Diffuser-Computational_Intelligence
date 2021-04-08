@@ -58,7 +58,7 @@ class Visualizer:
 		self.grid = Grid(self.surface, 10, 16, 35, 5, 7)
 
 	def run(self):
-
+		print(self.grid.problem_position)
 		while not self.done:
 			self.surface.fill(WHITE)
 

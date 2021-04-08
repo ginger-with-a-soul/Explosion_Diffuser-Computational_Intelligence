@@ -1,5 +1,6 @@
 from bf_visualizer import Visualizer
 from threading import Thread
+from baseconvert import base
 
 
 '''
@@ -23,14 +24,21 @@ def generate_all(k, n, output_label, mainwindow, problem, num_symbols_map, progr
     progress_percentage = 0.0
 
     progress_step = 100.0 / (grid.col_num * grid.row_num)
-    # starts the 'run' function from the visualization part
-    Thread(target=visualizer.run, args=[], daemon=True).start()
-
 
     numerical_problem = k * [1]
 
     for i in range(k):
         numerical_problem[i] = num_symbols_map[problem[i]]
+
+    # calculates the ordinal number of my problem variation so that I can place it on a tile in UI
+    number = [numerical_problem[i]-1 for i in range(len(numerical_problem))]
+    problem_position = int(base(tuple(number), n, 10, string=True)) + 1
+    problem_position = int(((problem_position * 100.0) / (total_variations*1.0)) / progress_step)
+    visualizer.grid.problem_position = problem_position
+
+
+    # starts the 'run' function from the visualization part
+    Thread(target=visualizer.run, args=[], daemon=True).start()
 
 
     current_variation = k * [1]
