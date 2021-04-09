@@ -59,14 +59,29 @@ class Grid:
 
 class Field:
 
-	def __init__(self, surface, num_solutions):
+	def __init__(self, surface, num_rows):
 		self.surface = surface
-		self.num_solutions = num_solutions
+		self.num_rows = num_rows
 		self.solutions = []
+		self.init_solutions()
+
+	def init_solutions(self):
+		cols = self.num_rows
+		for r in range(self.num_rows):
+			starting_x = 200 - 15 * (cols - 1)
+			for c in range(cols):
+				x = starting_x + 30 * c
+				y = 645 - r * 30
+				self.solutions.append(Solution(x, y, 0))
+			cols -= 1
 
 	def draw_field(self):
 		# draws the 'problem' square
 		pygame.draw.rect(self.surface, RED, pygame.Rect(186, 50, 50, 50), 0, 0)
+
+		for s in self.solutions:
+			pygame.draw.polygon(self.surface, GREEN, [(s.x, s.y), (s.x + 11, s.y - 10), (s.x + 22, s.y), [s.x + 10, s.y - 25]], 0)
+
 
 class Solution:
 
@@ -84,7 +99,7 @@ class Visualizer:
 		self.clock = pygame.time.Clock()
 		self.FPS = 60
 		self.grid = Grid(self.surface, 10, 16, 35, 5, 7)
-		self.field = Field(self.surface, 6)
+		self.field = Field(self.surface, 5)
 		self.mode = None
 
 	def run(self):
