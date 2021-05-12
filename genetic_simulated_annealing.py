@@ -355,7 +355,7 @@ def search(k, n, population_size, mutation_chance, elitism_rate, output_label, m
         no_improvement_num += 1
         if no_improvement_num >= int(num_of_generations * dynamic_mutation_rate):
             mutation_chance += mutation_chance * mutation_chance_increment
-            print(f'No improvement: {no_improvement_num}, mutation chance: {mutation_chance}')
+            print(f'No improvement: {no_improvement_num} generations\nMutation chance increased to: {mutation_chance}')
             if mutation_chance > 0.3:
                 # we will cap out our mutation_chance to 30%
                 mutation_chance = 0.3

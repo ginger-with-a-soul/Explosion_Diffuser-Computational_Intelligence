@@ -52,6 +52,9 @@ class UiApp:
         self.timer_label = self.builder.get_object('label_time')
         # timer_reference is used to store reference to the timer's after function so we can call after_cancel function later
         self.timer_reference = None
+        self.thread = None
+        self.WIDTH = 860
+        self.HEIGHT = 650
 
     def initialize_flags(self):
         '''
@@ -145,18 +148,19 @@ class UiApp:
         if self.START_FLAG:
             self.DONE_FLAG[0] = False
             self.timer_variable = 0.0
+            self.timer_label['text'] = int(0.0)
             self.timer()
             if self.BRUTEFORCE_FLAG:
                 # daemon parameter True indicates that our threads stop when we close the main program
-                threading.Thread(target=bf.generate_all, args=[self.k, self.n, self.output_label,self.mainwindow, self.problem, self.available_symbols_numerical, self.progress, self.DONE_FLAG], daemon=True).start()
+                self.thread = threading.Thread(target=bf.generate_all, args=[self.k, self.n, self.output_label,self.mainwindow, self.problem, self.available_symbols_numerical, self.progress, self.DONE_FLAG], daemon=True).start()
             elif self.MONTECARLO_FLAG:
                 ...
             else:
                 if self.POPULATION_SIZE_FLAG & self.ELITISM_FLAG & self.MUTATION_FLAG:
                     if self.TOURNAMENT_FLAG:
-                        threading.Thread(target=gsa.search, args = [self.k, self.n, self.population_size, self.mutation_rate, self.elitism, self.output_label, self.mainwindow, self.problem, self.available_symbols_numerical, self.progress, self.TOURNAMENT_FLAG, self.DONE_FLAG], daemon=True).start()
+                        self.thread = threading.Thread(target=gsa.search, args=[self.k, self.n, self.population_size, self.mutation_rate, self.elitism, self.output_label, self.mainwindow, self.problem, self.available_symbols_numerical, self.progress, self.TOURNAMENT_FLAG, self.DONE_FLAG], daemon=True).start()
                     else:
-                        threading.Thread(target=gsa.search, args=[self.k, self.n, self.population_size, self.mutation_rate, self.elitism, self.output_label, self.mainwindow, self.problem, self.available_symbols_numerical, self.progress, self.TOURNAMENT_FLAG, self.DONE_FLAG], daemon=True).start()
+                        self.thread = threading.Thread(target=gsa.search, args=[self.k, self.n, self.population_size, self.mutation_rate, self.elitism, self.output_label, self.mainwindow, self.problem, self.available_symbols_numerical, self.progress, self.TOURNAMENT_FLAG, self.DONE_FLAG], daemon=True).start()
 
     def change_theme_callback(self):
         if self.style.theme_use() == 'awdark':
@@ -172,9 +176,14 @@ class UiApp:
 
 
     def timer(self):
-        self.timer_variable += 1
-        self.timer_label['text'] = int(self.timer_variable)
-        self.timer_reference = self.mainwindow.after(1000, self.timer)
+        if self.timer_reference is not None and self.DONE_FLAG[0]:
+            self.timer_variable = 0.0
+            self.mainwindow.after_cancel(self.timer_reference)
+        else:
+            self.timer_variable += 1
+            self.timer_label['text'] = int(self.timer_variable)
+            self.timer_reference = self.mainwindow.after(1000, self.timer)
+
 
     def bind_validation(self):
         '''
@@ -332,7 +341,7 @@ class UiApp:
         # sets the window position on screen and opens it
         ws = self.mainwindow.winfo_screenwidth()
         hs = self.mainwindow.winfo_screenheight()
-        x = (ws / 3) - (860 / 2)
-        y = (hs / 3) - (650 / 2)
-        self.mainwindow.geometry('%dx%d+%d+%d' % (860, 650, x, y))
+        x = (ws / 3) - (self.WIDTH / 2)
+        y = (hs / 3) - (self.HEIGHT / 2)
+        self.mainwindow.geometry('%dx%d+%d+%d' % (self.WIDTH, self.HEIGHT, x, y))
         self.mainwindow.mainloop()

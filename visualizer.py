@@ -1,6 +1,7 @@
 import pygame
 from os import environ
 import tkinter as tk
+from math import sin, cos, radians
 
 # TRIES to reposition the visualizer window
 environ['SDL_VIDEO_WINDOW_POS'] = str(950) + ',' + str(0)
@@ -83,19 +84,20 @@ class Field:
 		if running:
 			for s in self.solutions:
 				# checks to see if the *pointy* part of the solutions model is out of bounds or if it hit the solutions rectangle, and stops it in its tracks if it is/did
-				if s.upper_vertice[0] <= 0 or \
-				   s.upper_vertice[0] >= WIDTH or \
-				   s.upper_vertice[1] <= 0 or \
-				   s.upper_vertice[1] >= HEIGHT or \
-				   ((s.upper_vertice[0] >= 186 and s.upper_vertice[0] <= 236) and \
-					(s.upper_vertice[1] <= 100 and s.upper_vertice[1] >= 50)):
+				if s.vertexes[3][0] <= 0 or \
+				   s.vertexes[3][0] >= WIDTH or \
+				   s.vertexes[3][1] <= 0 or \
+				   s.vertexes[3][1] >= HEIGHT or \
+				   ((s.vertexes[3][0] >= 186 and s.vertexes[3][0] <= 236) and \
+					(s.vertexes[3][1] <= 100 and s.vertexes[3][1] >= 50)):
 					s.running = False
-					s.update_vertice_positions(0, 0)
+					s.update_vertex_positions(0, 0)
 				else:
-					s.update_vertice_positions(0, -s.speed)
+					# s.update_vertex_positions(0, -s.speed)
+					s.rotate_solution(radians(10))
 		else:
 			for s in self.starting_positions:
-				s.update_vertice_positions(0, 0)
+				s.update_vertex_positions(0, 0)
 
 		if not running:
 			for i in range(len(self.solutions)):
@@ -114,24 +116,50 @@ class Solution:
 		self.x = x
 		self.y = y
 		self.fitness = fitness
-		self.speed = 10
+		self.speed = 2
 		self.running = False
-		self.update_vertice_positions(0, 0)
+		self.vertexes = []
+		self.initiate_vertexes()
+
+	def initiate_vertexes(self):
+		left_vertex = [self.x, self.y]
+		middle_vertex = [self.x + 11, self.y - 10]
+		right_vertex = [self.x + 22, self.y]
+		upper_vertex = [self.x + 11, self.y - 25]
+		self.vertexes.append(left_vertex)
+		self.vertexes.append(middle_vertex)
+		self.vertexes.append(right_vertex)
+		self.vertexes.append(upper_vertex)
 
 	def draw_solution(self):
-		pygame.draw.polygon(self.surface, GREEN, [self.left_vertice, self.middle_vertice, self.right_vertice, self.upper_vertice], 0)
+		pygame.draw.polygon(self.surface, GREEN, [self.vertexes[0], self.vertexes[1], self.vertexes[2], self.vertexes[3]], 0)
 
-	def update_vertice_positions(self, x_change, y_change):
+	def update_vertex_positions(self, x_change, y_change):
 		'''
 		This function changes the position of our solutions model by adding appropriate x and y coordinate change to our current x and y coordinates.
 		'''
-		self.x += x_change
-		self.y += y_change
-		self.left_vertice = (self.x, self.y)
-		self.middle_vertice = (self.x + 11, self.y - 10)
-		self.right_vertice = (self.x + 22, self.y)
-		self.upper_vertice = (self.x + 11, self.y - 25)
+		for v in self.vertexes:
+			v[0] += x_change
+			v[1] += y_change
+
 		self.draw_solution()
+
+	def rotate_solution(self, angle):
+		# the rotation is done around the upper_vertex and that is self.vertex[3]
+		rotated_vertexes = []
+
+		for vertex in self.vertexes:
+			tmp_point = vertex[0] - self.vertexes[3][0], vertex[1] - self.vertexes[3][1]
+			tmp_point = (tmp_point[0] * cos(angle) - tmp_point[1] * sin(angle),
+                            tmp_point[0] * sin(angle) + tmp_point[1] * cos(angle))
+			tmp_point = tmp_point[0] + self.vertexes[3][0], tmp_point[1] + self.vertexes[3][1]
+
+			rotated_vertexes.append(tmp_point)
+
+		self.vertexes = rotated_vertexes[:]
+		self.draw_solution()
+
+
 
 
 class Visualizer:
