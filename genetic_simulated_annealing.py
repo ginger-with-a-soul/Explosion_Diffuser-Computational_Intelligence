@@ -3,6 +3,7 @@ from math import ceil
 from heapq import heappushpop, heappush
 from threading import Thread
 from visualizer import Visualizer
+from time import sleep
 
 '''
 Search algorithm based on Genetic algorithm alongside Simulated Annealing
@@ -70,7 +71,7 @@ def create_problem_dict(k, problem):
     for dict copying. All in all it's 4*O(k) to calculate fitness value for the 1st time.
     Every time after the 1st one, it's 2*O(k) in the average case - worst case O(k^2).
 
-    Without problem as dictionary, our time complexity for finess function would have been
+    Without problem as dictionary, our time complexity for fitness function would have been
     O(k^2) because in the worst case scenario our ELIF statement in 'calculate_fitness' would
     always be True and we would need to go through whole problem to check the 'IN' part.
     '''
@@ -218,14 +219,14 @@ def simulated_annealing(genome, iterations, n, k, problem, problem_dict):
     genome with another random gene from the problem set.
     If the newly created genome is better than the original one, it will be sent back and added
     to the population. This results in faster convergence towards a solution (or a local max).
-    If the newly created genome is not better that the original one, there is a chance that the
+    If the newly created genome is not better than the original one, there is a chance that the
     new genome will be chosen despite being worse in regards to it's fitness. Because of this
     our convergence might be able to avoid a local maximum. In my implementation, the new genome
     will be added to the elites only if it's better than the worst elite.
     '''
 
     new_genome = Variation(k, n, problem, problem_dict, False)
-    # this line of code is really important because new_genome.genome = genome[1] would create a reference to the genome[1] so any changes would reflect on both. Doing it this way we create a shallow copy to genome[1]. This caused a bug that I've been searching for literally from 8 - 12 hours. Guess what mistake I won't make ever again...
+    # this line of code is really important because new_genome.genome = genome[1] would create a reference to the genome[1] so any changes would reflect on both. Doing it this way we create a shallow copy to genome[1]. This caused a bug that I've been searching for literally 8 - 12 hours. Guess what mistake I won't make ever again...
     new_genome.genome = genome[1][:]
     new_genome.fitness = genome[0]
     current = Variation(k, n, problem, problem_dict, False)
@@ -262,17 +263,18 @@ def simulated_annealing(genome, iterations, n, k, problem, problem_dict):
 def search(k, n, population_size, mutation_chance, elitism_rate, output_label, mainwindow, problem, num_symbols_map, progress, tournament_selection_mode, done_flag):
 
     # the visualizing part
-    visualizer = Visualizer()
-    visualizer.mode = 'FIELD'
+    visualizer = Visualizer("Genetic-Simulated annealing algorithm", "gen_algo")
     Thread(target=visualizer.run, args=[], daemon=True).start()
+
 
     numerical_problem = transform_problem_to_numerical(k, problem, num_symbols_map)
     problem_dict = create_problem_dict(k, numerical_problem)
 
     elites, num_of_elites = elitism(elitism_rate, population_size)
     num_of_generations = 1000
-    tournament_size = 10
+    tournament_size = 12
 
+    simulated_annealing_temperature = 20
     # can't make this a touple because touples are immutable
     current_best_fitness = 0.0
     current_best_genome = []
@@ -297,15 +299,22 @@ def search(k, n, population_size, mutation_chance, elitism_rate, output_label, m
         population.append((variation.fitness, variation.genome))
         new_population.append((variation.fitness, variation.genome))
 
-    # this seems unneeded but it absolutely is not. [0, num_of_elites-1] is the spot for the elites in my pupulation and it seems redundant but keeping it here seems to speed up the search. If I was to remove this I would need to make sure my loop through population starts from 0 and not from num_of_elites
-    # for i in range(num_of_elites):
-        #population[i] = elites[i]
-        #new_population[i] = elites[i]
+    for s in visualizer.field.solutions:
+        s.fitness = population[randint(0, population_size - 1)][0]
+        s.running = True
+
 
     for generation in range(num_of_generations):
+        # check to see if we can unleash another set of solutions to be visualized or if the last set is still flying around the screen
+        if not visualizer.running:
+            for s in visualizer.field.solutions:
+                s.fitness = population[randint(0, population_size - 1)][0]
+                s.running = True
+
         if generation == num_of_generations-1:
             done_flag[0] = True
             return
+
         for i in range(0, population_size, 2):
 
             parent_1, parent_2 = selection(tournament_selection_mode, population_size, population, tournament_size)
@@ -333,7 +342,7 @@ def search(k, n, population_size, mutation_chance, elitism_rate, output_label, m
                         done_flag[0] = True
                         return
 
-            sa_fitness, sa_genome = simulated_annealing((current_best_fitness, current_best_genome), 20, n, k, numerical_problem, problem_dict)
+            sa_fitness, sa_genome = simulated_annealing((current_best_fitness, current_best_genome), simulated_annealing_temperature, n, k, numerical_problem, problem_dict)
             if sa_fitness > current_best_fitness or sa_genome != current_best_genome:
                 no_improvement_num = 0
                 heappushpop(elites, (sa_fitness, sa_genome))
@@ -350,4 +359,6 @@ def search(k, n, population_size, mutation_chance, elitism_rate, output_label, m
             if mutation_chance > 0.3:
                 # we will cap out our mutation_chance to 30%
                 mutation_chance = 0.3
+
+
         population = new_population

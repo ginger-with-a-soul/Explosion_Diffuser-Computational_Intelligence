@@ -33,9 +33,9 @@ class UiApp:
         self.bind_validation()
 
     def initialize_variables(self):
-        self.k = 5
+        self.k = 10
         self.n = 5
-        self.population_size = 500
+        self.population_size = 200
         self.elitism = 0.1
         self.mutation_rate = 0.03
         self.problem = ''
@@ -259,6 +259,9 @@ class UiApp:
 
         try:
             self.population_size = int(self.builder.get_variable('population_size').get())
+            # checks to see if the size of the population is odd and if it is, increases the populations size by 1 so that we don't get *index out of range* exception when going 2 by 2 through the population generating new children
+            if self.population_size % 2 == 1:
+                self.population_size += 1
         except ValueError:
             self.POPULATION_SIZE_FLAG = False
             return False

@@ -99,7 +99,7 @@
                 <property name="font">{C059} 14 {}</property>
                 <property name="justify">center</property>
                 <property name="takefocus">true</property>
-                <property name="text" translatable="yes">5</property>
+                <property name="text" translatable="yes">10</property>
                 <property name="textvariable">string:input_size</property>
                 <property name="validate">focusout</property>
                 <property name="validatecommand">input_size_validate_callback</property>
@@ -269,9 +269,9 @@
                 <property name="variable">string:algo_group</property>
                 <layout manager="place">
                   <property name="relheight">0.14</property>
-                  <property name="relwidth">0.8</property>
+                  <property name="relwidth">0.87</property>
                   <property name="relx">0.1</property>
-                  <property name="rely">0.1</property>
+                  <property name="rely">0.2</property>
                   <property name="x">0</property>
                   <property name="y">0</property>
                 </layout>
@@ -290,7 +290,7 @@
                   <property name="relheight">0.14</property>
                   <property name="relwidth">0.87</property>
                   <property name="relx">0.1</property>
-                  <property name="rely">0.2</property>
+                  <property name="rely">0.1</property>
                   <property name="x">0</property>
                   <property name="y">0</property>
                 </layout>
@@ -422,7 +422,7 @@
                     <property name="font">{C059} 12 {}</property>
                     <property name="justify">center</property>
                     <property name="takefocus">true</property>
-                    <property name="text" translatable="yes">500</property>
+                    <property name="text" translatable="yes">200</property>
                     <property name="textvariable">string:population_size</property>
                     <property name="validate">focusout</property>
                     <property name="validatecommand">population_size_validate_callback</property>
@@ -503,7 +503,7 @@
                 <property name="command">generate_problem_callback</property>
                 <property name="idtocommand">false</property>
                 <property name="takefocus">true</property>
-                <property name="text" translatable="yes">Generate random problem or input it</property>
+                <property name="text" translatable="yes">Generate a random problem</property>
                 <property name="textvariable">string:generate_problem</property>
                 <layout manager="place">
                   <property name="anchor">nw</property>
@@ -603,7 +603,7 @@
                 <property name="text" translatable="yes">0.000</property>
                 <layout manager="place">
                   <property name="anchor">nw</property>
-                  <property name="relx">0.68</property>
+                  <property name="relx">0.78</property>
                   <property name="rely">0.76</property>
                   <property name="x">0</property>
                   <property name="y">0</property>

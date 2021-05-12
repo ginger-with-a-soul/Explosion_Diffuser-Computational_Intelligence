@@ -1,6 +1,7 @@
 from visualizer import Visualizer
 from threading import Thread
 from baseconvert import base
+from time import sleep
 
 
 '''
@@ -17,8 +18,7 @@ def generate_all(k, n, output_label, mainwindow, problem, num_symbols_map, progr
     Every time a better variation is found, it gets printed to UI.
     Stops search when match is found.
     '''
-    visualizer = Visualizer()
-    visualizer.mode = 'GRID'
+    visualizer = Visualizer("Brute-force algorithm", "brute_algo")
     grid = visualizer.grid
     total_variations = n ** k
     current_variation_number = 0
@@ -37,9 +37,12 @@ def generate_all(k, n, output_label, mainwindow, problem, num_symbols_map, progr
     problem_position = int(((problem_position * 100.0) / (total_variations*1.0)) / progress_step)
     visualizer.grid.problem_position = problem_position
 
-
-    # starts the 'run' function from the visualization part
-    Thread(target=visualizer.run, args=[], daemon=True).start()
+    if not visualizer.running:
+        # starts the 'run' function from the visualization part
+        Thread(target=visualizer.run, args=[], daemon=True).start()
+        visualizer.running = True
+    else:
+        return
 
 
     current_variation = k * [1]
