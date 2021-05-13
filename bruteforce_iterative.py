@@ -18,7 +18,7 @@ def generate_all(k, n, output_label, mainwindow, problem, num_symbols_map, progr
     Every time a better variation is found, it gets printed to UI.
     Stops search when match is found.
     '''
-    visualizer = Visualizer("Brute-force algorithm", "brute_algo")
+    visualizer = Visualizer("Brute-force algorithm", "brute_algo", k)
     grid = visualizer.grid
     total_variations = n ** k
     current_variation_number = 0

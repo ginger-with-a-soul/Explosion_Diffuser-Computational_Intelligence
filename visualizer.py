@@ -35,8 +35,7 @@ class Grid:
 
 	def draw_rect(self, row_coord, col_coord, color):
 		pygame.draw.rect(self.surface, color,
-                  pygame.Rect(row_coord, col_coord, self.cell_size, self.cell_size), 0, 9)
-
+						 pygame.Rect(row_coord, col_coord, self.cell_size, self.cell_size), 0, 9)
 
 	def draw_grid(self):
 		position = 0
@@ -57,25 +56,24 @@ class Grid:
 				position += 1
 
 
-
 class Field:
 
-	def __init__(self, surface, num_rows):
+	def __init__(self, surface, num_rows, k):
 		self.surface = surface
 		self.num_rows = num_rows
 		self.solutions = []
 		self.starting_positions = []
-		self.init_solutions()
+		self.init_solutions(k)
 
-	def init_solutions(self):
+	def init_solutions(self, k):
 		cols = self.num_rows
 		for r in range(self.num_rows):
 			starting_x = 200 - 15 * (cols - 1)
 			for c in range(cols):
 				x = starting_x + 30 * c
 				y = HEIGHT - 30 - r * 30
-				self.solutions.append(Solution(x, y, 0, self.surface))
-				self.starting_positions.append(Solution(x, y, 0, self.surface))
+				self.solutions.append(Solution(x, y, 0, k, self.surface))
+				self.starting_positions.append(Solution(x, y, 0, k, self.surface))
 			cols -= 1
 
 	def draw_field(self):
@@ -93,44 +91,112 @@ class Field:
 				   upper_vertex[0] >= WIDTH or \
 				   upper_vertex[1] <= 0 or \
 				   upper_vertex[1] >= HEIGHT or \
-				   ((upper_vertex[0] >= 186 and upper_vertex[0] <= 236) and \
-					(upper_vertex[1] <= 100 and upper_vertex[1] >= 50)):
+				   ((upper_vertex[0] >= 186 and upper_vertex[0] <= 236) and
+						(upper_vertex[1] <= 100 and upper_vertex[1] >= 50)):
 					s.running = False
 					s.draw_solution()
 				else:
-					if uniform(0, 1) <= 0.01:
-						s.rotate_solution(radians(10))
-					if uniform(0, 1) <= 0.01:
-						s.rotate_solution(radians(-10))
 					s.update_vertex_positions()
+					if uniform(0, 1) <= 0.01:
+						s.rotate_solution(10)
+					if uniform(0, 1) <= 0.01:
+						s.rotate_solution(-10)
+					# the fitness of the solution is the best possible thus solution flies straight to the goal
+					# dice_throw_1 = uniform(0, 1)
+					# dice_throw_2 = uniform(0, 1)
+					# if s.precision == 1:
+					#    ...
+					# elif s.precision > 0.8:
+					#    if dice_throw_1 <= 0.02:
+					#        s.rotate_solution(5)
+					#    if dice_throw_2 <= 0.02:
+					#        s.rotate_solution(-5)
+					# elif s.precision > 0.6 and s.precision <= 0.8:
+					#    if dice_throw_1 <= 0.05:
+					#        s.rotate_solution(10)
+					#    if dice_throw_2 <= 0.05:
+					#        s.rotate_solution(-10)
+					# elif s.precision > 0.4 and s.precision <= 0.6:
+					#    if dice_throw_1 <= 0.07:
+					#        s.rotate_solution(20)
+					#    if dice_throw_2 <= 0.07:
+					#        s.rotate_solution(-20)
+					# elif s.precision > 0.2 and s.precision <= 0.4:
+					#    if dice_throw_1 <= 0.1:
+					#        s.rotate_solution(20)
+					#    if dice_throw_2 <= 0.1:
+					#        s.rotate_solution(-20)
+					# else:
+					#    if dice_throw_1 <= 0.15:
+					#        s.rotate_solution(25)
+					#    if dice_throw_2 <= 0.15:
+					#        s.rotate_solution(25)
+
 		else:
 			for s in self.starting_positions:
 				s.draw_solution()
 
 		if not running:
 			for i in range(len(self.solutions)):
+
 				self.solutions[i].x = self.starting_positions[i].x
 				self.solutions[i].y = self.starting_positions[i].y
 				self.solutions[i].acceleration = self.starting_positions[i].starting_speed
 				self.solutions[i].forward_vector = self.starting_positions[i].forward_vector
-				self.starting_positions[i].acceleration = self.starting_positions[i].starting_speed
+
 
 		return running
 
 
 class Solution:
 
-	def __init__(self, x, y, fitness, surface):
+	def __init__(self, x, y, fitness, k, surface):
 		self.surface = surface
 		self.x = x
 		self.y = y
 		self.fitness = fitness
+		self.k = k
 		self.forward_vector = Vector2(0, -1)
 		self.acceleration = 4
 		self.starting_speed = 4
 		self.running = False
 		self.vertexes = []
 		self.initiate_vertexes()
+		#self.precision = self.calculate_precision
+
+	def calculate_precision(self):
+		precision = float(self.fitness * 1.0 / self.k)
+		print("here")
+		# initially `aims` the solution based on the precision
+		coin_flip = uniform(0, 1)
+
+		if precision == 1:
+			...
+		elif precision > 0.8:
+			if coin_flip <= 0.5:
+				self.rotate_solution(30)
+			else:
+				self.rotate_solution(-30)
+		elif precision > 0.6 and precision <= 0.8:
+			if coin_flip <= 0.5:
+				self.rotate_solution(50)
+			else:
+				self.rotate_solution(-50)
+		elif precision > 0.4 and precision <= 0.6:
+			if coin_flip <= 0.5:
+				self.rotate_solution(90)
+			else:
+				self.rotate_solution(-90)
+		elif precision > 0.2 and precision <= 0.4:
+			if coin_flip <= 0.5:
+				self.rotate_solution(130)
+			else:
+				self.rotate_solution(-130)
+		else:
+			self.rotate_solution(180)
+		self.update_vertex_positions()
+
+		return precision
 
 	def initiate_vertexes(self):
 		left_vertex = [self.x, self.y]
@@ -157,6 +223,7 @@ class Solution:
 		self.draw_solution()
 
 	def rotate_solution(self, angle):
+		angle = radians(angle)
 		# the rotation is done around the upper_vertex and that is self.vertex[3]
 		rotated_vertexes = []
 		c = cos(angle)
@@ -169,7 +236,7 @@ class Solution:
 
 			tmp_point = vertex[0] - self.vertexes[3][0], vertex[1] - self.vertexes[3][1]
 			tmp_point = tmp_point[0] * c - tmp_point[1] * s, \
-                        tmp_point[0] * s + tmp_point[1] * c
+				tmp_point[0] * s + tmp_point[1] * c
 			tmp_point = tmp_point[0] + self.vertexes[3][0], tmp_point[1] + self.vertexes[3][1]
 
 			rotated_vertexes.append(list(tmp_point))
@@ -178,7 +245,7 @@ class Solution:
 
 
 class Visualizer:
-	def __init__(self, caption, mode):
+	def __init__(self, caption, mode, k):
 		self.done = False
 		self.surface = pygame.display.set_mode((WIDTH, HEIGHT), pygame.SCALED | pygame.NOFRAME, vsync=1)
 		pygame.display.set_caption(caption)
@@ -188,7 +255,7 @@ class Visualizer:
 		self.grid = None
 		self.mode = mode
 		if self.mode == "gen_algo":
-			self.field = Field(self.surface, 5)
+			self.field = Field(self.surface, 4, k)
 		elif self.mode == "brute_algo":
 			self.grid = Grid(self.surface, 10, 16, 35, 5, 7)
 		# 'done' flag is used for the loop, if we were to use that as an indicator, when we set this flag to True when a solution gets to the goal, our window would close immediately and we don't want that. This flag is just used to indicate when can we start another generation in genetic algorithm
@@ -200,7 +267,7 @@ class Visualizer:
 
 			for event in pygame.event.get():
 				if event.type == pygame.QUIT or \
-    	                    (event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE):
+						(event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE):
 					self.done = True
 
 			if self.mode == 'brute_algo':
@@ -210,7 +277,6 @@ class Visualizer:
 
 			pygame.display.flip()
 			self.clock.tick(self.FPS)
-
 
 		pygame.quit()
 

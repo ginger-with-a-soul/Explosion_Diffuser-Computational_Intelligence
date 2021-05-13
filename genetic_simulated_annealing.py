@@ -263,7 +263,7 @@ def simulated_annealing(genome, iterations, n, k, problem, problem_dict):
 def search(k, n, population_size, mutation_chance, elitism_rate, output_label, mainwindow, problem, num_symbols_map, progress, tournament_selection_mode, done_flag):
 
     # the visualizing part
-    visualizer = Visualizer("Genetic-Simulated annealing algorithm", "gen_algo")
+    visualizer = Visualizer("Genetic-Simulated annealing algorithm", "gen_algo", k)
     Thread(target=visualizer.run, args=[], daemon=True).start()
 
 
@@ -305,6 +305,7 @@ def search(k, n, population_size, mutation_chance, elitism_rate, output_label, m
             print("flicker")
             for s in visualizer.field.solutions:
                 s.fitness = population[randint(0, population_size - 1)][0]
+                #s.precision = s.calculate_precision()
                 s.running = True
 
 
