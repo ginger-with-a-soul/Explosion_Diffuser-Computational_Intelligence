@@ -1,7 +1,7 @@
 from random import uniform, randint
 from math import ceil
 from heapq import heappushpop, heappush
-from threading import Thread
+from threading import Thread, Lock
 from visualizer import Visualizer
 from time import sleep
 
@@ -299,17 +299,14 @@ def search(k, n, population_size, mutation_chance, elitism_rate, output_label, m
         population.append((variation.fitness, variation.genome))
         new_population.append((variation.fitness, variation.genome))
 
-    for s in visualizer.field.solutions:
-        s.fitness = population[randint(0, population_size - 1)][0]
-        s.running = True
-
-
     for generation in range(num_of_generations):
-        # check to see if we can unleash another set of solutions to be visualized or if the last set is still flying around the screen
+        # check to see if we can unleash another set of solutions to be visualized or if the last set is still flying around on the screen
         if not visualizer.running:
+            print("flicker")
             for s in visualizer.field.solutions:
                 s.fitness = population[randint(0, population_size - 1)][0]
                 s.running = True
+
 
         if generation == num_of_generations-1:
             done_flag[0] = True

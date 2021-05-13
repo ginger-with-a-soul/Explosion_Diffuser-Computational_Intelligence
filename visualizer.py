@@ -4,6 +4,7 @@ from os import environ
 import tkinter as tk
 from math import sin, cos, radians
 from random import uniform
+from time import sleep
 
 # TRIES to reposition the visualizer window
 environ['SDL_VIDEO_WINDOW_POS'] = str(950) + ',' + str(0)
@@ -32,6 +33,11 @@ class Grid:
 		self.problem_position = 0
 		self.current_position = 0
 
+	def draw_rect(self, row_coord, col_coord, color):
+		pygame.draw.rect(self.surface, color,
+                  pygame.Rect(row_coord, col_coord, self.cell_size, self.cell_size), 0, 9)
+
+
 	def draw_grid(self):
 		position = 0
 		for col in range(self.col_num):
@@ -41,17 +47,13 @@ class Grid:
 				row_coord = self.margin_size + row * self.spacing + row * self.cell_size
 
 				if position == self.current_position and position == self.problem_position:
-					pygame.draw.rect(self.surface, TEAL,
-                                    pygame.Rect(row_coord, col_coord, self.cell_size, self.cell_size), 0, 9)
+					self.draw_rect(row_coord, col_coord, TEAL)
 				elif position == self.current_position:
-					pygame.draw.rect(self.surface, GREEN,
-                                    pygame.Rect(row_coord, col_coord, self.cell_size, self.cell_size), 0, 9)
+					self.draw_rect(row_coord, col_coord, GREEN)
 				elif position == self.problem_position:
-					pygame.draw.rect(self.surface, RED,
-                                    pygame.Rect(row_coord, col_coord, self.cell_size, self.cell_size), 0, 9)
+					self.draw_rect(row_coord, col_coord, RED)
 				else:
-					pygame.draw.rect(self.surface, BLACK, \
-                                            pygame.Rect(row_coord, col_coord, self.cell_size, self.cell_size), 0, 9)
+					self.draw_rect(row_coord, col_coord, BLACK)
 				position += 1
 
 
@@ -81,37 +83,37 @@ class Field:
 		pygame.draw.rect(self.surface, RED, pygame.Rect(186, 50, 50, 50), 0, 0)
 		running = False
 		for s in self.solutions:
-			running |= s.running
+			running = running or s.running
 
 		if running:
 			for s in self.solutions:
+				upper_vertex = s.vertexes[3]
 				# checks to see if the *pointy* part of the solutions model is out of bounds or if it hit the solutions rectangle, and stops it in its tracks if it is/did
-				if s.vertexes[3][0] <= 0 or \
-				   s.vertexes[3][0] >= WIDTH or \
-				   s.vertexes[3][1] <= 0 or \
-				   s.vertexes[3][1] >= HEIGHT or \
-				   ((s.vertexes[3][0] >= 186 and s.vertexes[3][0] <= 236) and \
-					(s.vertexes[3][1] <= 100 and s.vertexes[3][1] >= 50)):
+				if upper_vertex[0] <= 0 or \
+				   upper_vertex[0] >= WIDTH or \
+				   upper_vertex[1] <= 0 or \
+				   upper_vertex[1] >= HEIGHT or \
+				   ((upper_vertex[0] >= 186 and upper_vertex[0] <= 236) and \
+					(upper_vertex[1] <= 100 and upper_vertex[1] >= 50)):
 					s.running = False
-					s.acceleration = 0
-					s.update_vertex_positions()
+					s.draw_solution()
 				else:
-					s.update_vertex_positions()
 					if uniform(0, 1) <= 0.01:
 						s.rotate_solution(radians(10))
 					if uniform(0, 1) <= 0.01:
 						s.rotate_solution(radians(-10))
+					s.update_vertex_positions()
 		else:
 			for s in self.starting_positions:
-				s.acceleration = 0
-				s.update_vertex_positions()
+				s.draw_solution()
 
 		if not running:
 			for i in range(len(self.solutions)):
 				self.solutions[i].x = self.starting_positions[i].x
 				self.solutions[i].y = self.starting_positions[i].y
-				self.solutions[i].fitness = self.starting_positions[i].fitness
 				self.solutions[i].acceleration = self.starting_positions[i].starting_speed
+				self.solutions[i].forward_vector = self.starting_positions[i].forward_vector
+				self.starting_positions[i].acceleration = self.starting_positions[i].starting_speed
 
 		return running
 
@@ -124,7 +126,7 @@ class Solution:
 		self.y = y
 		self.fitness = fitness
 		self.forward_vector = Vector2(0, -1)
-		self.acceleration = 0
+		self.acceleration = 4
 		self.starting_speed = 4
 		self.running = False
 		self.vertexes = []
@@ -145,7 +147,7 @@ class Solution:
 
 	def update_vertex_positions(self):
 		'''
-		This function changes the position of our solutions model by adding appropriate x and y coordinate change to our current x and y coordinates.
+		This function changes the position of our solutions model by adding appropriate x and y coordinate change to the current x and y coordinates of each vertex.
 		'''
 		for v in self.vertexes:
 
@@ -157,15 +159,17 @@ class Solution:
 	def rotate_solution(self, angle):
 		# the rotation is done around the upper_vertex and that is self.vertex[3]
 		rotated_vertexes = []
+		c = cos(angle)
+		s = sin(angle)
 
-		self.forward_vector.x = self.forward_vector.x * cos(angle) - self.forward_vector.y * sin(angle)
-		self.forward_vector.y = self.forward_vector.x * sin(angle) + self.forward_vector.y * cos(angle)
+		self.forward_vector.x = self.forward_vector.x * c - self.forward_vector.y * s
+		self.forward_vector.y = self.forward_vector.x * s + self.forward_vector.y * c
 
 		for vertex in self.vertexes:
 
 			tmp_point = vertex[0] - self.vertexes[3][0], vertex[1] - self.vertexes[3][1]
-			tmp_point = tmp_point[0] * cos(angle) - tmp_point[1] * sin(angle), \
-                        tmp_point[0] * sin(angle) + tmp_point[1] * cos(angle)
+			tmp_point = tmp_point[0] * c - tmp_point[1] * s, \
+                        tmp_point[0] * s + tmp_point[1] * c
 			tmp_point = tmp_point[0] + self.vertexes[3][0], tmp_point[1] + self.vertexes[3][1]
 
 			rotated_vertexes.append(list(tmp_point))
@@ -179,7 +183,7 @@ class Visualizer:
 		self.surface = pygame.display.set_mode((WIDTH, HEIGHT), pygame.SCALED | pygame.NOFRAME, vsync=1)
 		pygame.display.set_caption(caption)
 		self.clock = pygame.time.Clock()
-		self.FPS = 60
+		self.FPS = 30
 		self.field = None
 		self.grid = None
 		self.mode = mode
