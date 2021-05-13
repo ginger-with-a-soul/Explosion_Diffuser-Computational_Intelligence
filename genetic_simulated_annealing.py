@@ -305,7 +305,7 @@ def search(k, n, population_size, mutation_chance, elitism_rate, output_label, m
             print("flicker")
             for s in visualizer.field.solutions:
                 s.fitness = population[randint(0, population_size - 1)][0]
-                #s.precision = s.calculate_precision()
+                s.precision = s.calculate_precision()
                 s.running = True
 
 

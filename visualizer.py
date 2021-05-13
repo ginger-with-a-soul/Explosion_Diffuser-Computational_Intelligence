@@ -97,40 +97,36 @@ class Field:
 					s.draw_solution()
 				else:
 					s.update_vertex_positions()
-					if uniform(0, 1) <= 0.01:
-						s.rotate_solution(10)
-					if uniform(0, 1) <= 0.01:
-						s.rotate_solution(-10)
 					# the fitness of the solution is the best possible thus solution flies straight to the goal
-					# dice_throw_1 = uniform(0, 1)
-					# dice_throw_2 = uniform(0, 1)
-					# if s.precision == 1:
-					#    ...
-					# elif s.precision > 0.8:
-					#    if dice_throw_1 <= 0.02:
-					#        s.rotate_solution(5)
-					#    if dice_throw_2 <= 0.02:
-					#        s.rotate_solution(-5)
-					# elif s.precision > 0.6 and s.precision <= 0.8:
-					#    if dice_throw_1 <= 0.05:
-					#        s.rotate_solution(10)
-					#    if dice_throw_2 <= 0.05:
-					#        s.rotate_solution(-10)
-					# elif s.precision > 0.4 and s.precision <= 0.6:
-					#    if dice_throw_1 <= 0.07:
-					#        s.rotate_solution(20)
-					#    if dice_throw_2 <= 0.07:
-					#        s.rotate_solution(-20)
-					# elif s.precision > 0.2 and s.precision <= 0.4:
-					#    if dice_throw_1 <= 0.1:
-					#        s.rotate_solution(20)
-					#    if dice_throw_2 <= 0.1:
-					#        s.rotate_solution(-20)
-					# else:
-					#    if dice_throw_1 <= 0.15:
-					#        s.rotate_solution(25)
-					#    if dice_throw_2 <= 0.15:
-					#        s.rotate_solution(25)
+					dice_throw_1 = uniform(0, 1)
+					dice_throw_2 = uniform(0, 1)
+					if s.precision == 1:
+						...
+					elif s.precision > 0.95:
+						if dice_throw_1 <= 0.01:
+							s.rotate_solution(1)
+						if dice_throw_2 <= 0.01:
+							s.rotate_solution(-1)
+					elif s.precision > 0.8 and s.precision <= 0.95:
+						if dice_throw_1 <= 0.04:
+							s.rotate_solution(4)
+						if dice_throw_2 <= 0.04:
+							s.rotate_solution(-4)
+					elif s.precision > 0.65 and s.precision <= 0.85:
+						if dice_throw_1 <= 0.05:
+							s.rotate_solution(8)
+						if dice_throw_2 <= 0.05:
+							s.rotate_solution(-8)
+					elif s.precision > 0.5 and s.precision <= 0.65:
+						if dice_throw_1 <= 0.8:
+							s.rotate_solution(10)
+						if dice_throw_2 <= 0.8:
+							s.rotate_solution(-10)
+					else:
+						if dice_throw_1 <= 0.1:
+							s.rotate_solution(12)
+						if dice_throw_2 <= 0.1:
+							s.rotate_solution(12)
 
 		else:
 			for s in self.starting_positions:
@@ -143,7 +139,6 @@ class Field:
 				self.solutions[i].y = self.starting_positions[i].y
 				self.solutions[i].acceleration = self.starting_positions[i].starting_speed
 				self.solutions[i].forward_vector = self.starting_positions[i].forward_vector
-
 
 		return running
 
@@ -162,36 +157,39 @@ class Solution:
 		self.running = False
 		self.vertexes = []
 		self.initiate_vertexes()
-		#self.precision = self.calculate_precision
+		self.precision = self.calculate_precision
 
 	def calculate_precision(self):
 		precision = float(self.fitness * 1.0 / self.k)
-		print("here")
+		if precision < 0.5:
+			precision = 0.5
+
 		# initially `aims` the solution based on the precision
 		coin_flip = uniform(0, 1)
+		print(precision)
 
-		if precision == 1:
+		if precision == 1.0:
 			...
-		elif precision > 0.8:
+		elif precision > 0.95:
+			if coin_flip <= 0.5:
+				self.rotate_solution(12)
+			else:
+				self.rotate_solution(-12)
+		elif precision > 0.8 and precision <= 0.95:
+			if coin_flip <= 0.5:
+				self.rotate_solution(16)
+			else:
+				self.rotate_solution(-16)
+		elif precision > 0.65 and precision <= 0.8:
+			if coin_flip <= 0.5:
+				self.rotate_solution(22)
+			else:
+				self.rotate_solution(-22)
+		elif precision > 0.5 and precision <= 0.65:
 			if coin_flip <= 0.5:
 				self.rotate_solution(30)
 			else:
 				self.rotate_solution(-30)
-		elif precision > 0.6 and precision <= 0.8:
-			if coin_flip <= 0.5:
-				self.rotate_solution(50)
-			else:
-				self.rotate_solution(-50)
-		elif precision > 0.4 and precision <= 0.6:
-			if coin_flip <= 0.5:
-				self.rotate_solution(90)
-			else:
-				self.rotate_solution(-90)
-		elif precision > 0.2 and precision <= 0.4:
-			if coin_flip <= 0.5:
-				self.rotate_solution(130)
-			else:
-				self.rotate_solution(-130)
 		else:
 			self.rotate_solution(180)
 		self.update_vertex_positions()
@@ -217,8 +215,22 @@ class Solution:
 		'''
 		for v in self.vertexes:
 
-			v[0] += self.acceleration * self.forward_vector.x
-			v[1] += self.acceleration * self.forward_vector.y
+			if self.forward_vector.x < 0.12 and self.forward_vector.x >= 0.0:
+				self.forward_vector.x = 0.12
+			elif self.forward_vector.x > -0.12 and self.forward_vector.x <= 0.0:
+				self.forward_vector.x = -0.12
+
+			if self.forward_vector.y < 0.12 and self.forward_vector.y >= 0.0:
+				self.forward_vector.y = 0.12
+			elif self.forward_vector.y > -0.12 and self.forward_vector.y <= 0.0:
+				self.forward_vector.y = -0.12
+			change_x = self.acceleration * self.forward_vector.x
+			change_y = self.acceleration * self.forward_vector.y
+
+			print(change_x, change_y)
+
+			v[0] += change_x
+			v[1] += change_y
 
 		self.draw_solution()
 
