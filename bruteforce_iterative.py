@@ -1,6 +1,6 @@
 from visualizer import Visualizer
 from threading import Thread
-from baseconvert import base
+import baseconv
 from time import sleep
 
 
@@ -33,7 +33,7 @@ def generate_all(k, n, output_label, mainwindow, problem, num_symbols_map, progr
 
     # calculates the ordinal number of my problem variation so that I can place it on a tile in UI
     number = [numerical_problem[i]-1 for i in range(len(numerical_problem))]
-    problem_position = int(base(tuple(number), n, 10, string=True)) + 1
+    problem_position = int(baseconv.base(tuple(number), n, 10, string=True)) + 1
     problem_position = int(((problem_position * 100.0) / (total_variations*1.0)) / progress_step)
     visualizer.grid.problem_position = problem_position
 

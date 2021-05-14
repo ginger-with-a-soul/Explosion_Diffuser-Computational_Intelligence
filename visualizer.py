@@ -166,7 +166,6 @@ class Solution:
 
 		# initially `aims` the solution based on the precision
 		coin_flip = uniform(0, 1)
-		print(precision)
 
 		if precision == 1.0:
 			...
@@ -215,11 +214,8 @@ class Solution:
 		'''
 		for v in self.vertexes:
 
-
 			change_x = self.acceleration * self.forward_vector.x
 			change_y = self.acceleration * self.forward_vector.y
-
-			print(change_x, change_y)
 
 			v[0] += change_x
 			v[1] += change_y
