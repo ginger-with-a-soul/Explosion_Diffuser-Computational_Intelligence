@@ -97,36 +97,36 @@ class Field:
 					s.draw_solution()
 				else:
 					s.update_vertex_positions()
-					# the fitness of the solution is the best possible thus solution flies straight to the goal
-					dice_throw_1 = uniform(0, 1)
-					dice_throw_2 = uniform(0, 1)
-					if s.precision == 1:
-						...
-					elif s.precision > 0.95:
-						if dice_throw_1 <= 0.01:
-							s.rotate_solution(1)
-						if dice_throw_2 <= 0.01:
-							s.rotate_solution(-1)
-					elif s.precision > 0.8 and s.precision <= 0.95:
-						if dice_throw_1 <= 0.04:
-							s.rotate_solution(4)
-						if dice_throw_2 <= 0.04:
-							s.rotate_solution(-4)
-					elif s.precision > 0.65 and s.precision <= 0.85:
-						if dice_throw_1 <= 0.05:
-							s.rotate_solution(8)
-						if dice_throw_2 <= 0.05:
-							s.rotate_solution(-8)
-					elif s.precision > 0.5 and s.precision <= 0.65:
-						if dice_throw_1 <= 0.8:
-							s.rotate_solution(10)
-						if dice_throw_2 <= 0.8:
-							s.rotate_solution(-10)
-					else:
-						if dice_throw_1 <= 0.1:
-							s.rotate_solution(12)
-						if dice_throw_2 <= 0.1:
-							s.rotate_solution(12)
+					# the fitness of the solution is the best possible thus solution flies straight to the goal. EVERYTHING IS COMMENTED OUT BECAUSE IT SEEMS LIKE CONSTANT USAGE OF ROTATION DRIVES OUR VECTOR TO 0 THUS REDUCING SPEED TO 0
+					#dice_throw_1 = uniform(0, 1)
+					#dice_throw_2 = uniform(0, 1)
+					#if s.precision == 1:
+					#	...
+					#elif s.precision > 0.95:
+					#	if dice_throw_1 <= 0.01:
+					#		s.rotate_solution(1)
+					#	if dice_throw_2 <= 0.01:
+					#		s.rotate_solution(-1)
+					#elif s.precision > 0.8 and s.precision <= 0.95:
+					#	if dice_throw_1 <= 0.04:
+					#		s.rotate_solution(4)
+					#	if dice_throw_2 <= 0.04:
+					#		s.rotate_solution(-4)
+					#elif s.precision > 0.65 and s.precision <= 0.85:
+					#	if dice_throw_1 <= 0.05:
+					#		s.rotate_solution(8)
+					#	if dice_throw_2 <= 0.05:
+					#		s.rotate_solution(-8)
+					#elif s.precision > 0.5 and s.precision <= 0.65:
+					#	if dice_throw_1 <= 0.8:
+					#		s.rotate_solution(10)
+					#	if dice_throw_2 <= 0.8:
+					#		s.rotate_solution(-10)
+					#else:
+					#	if dice_throw_1 <= 0.1:
+					#		s.rotate_solution(12)
+					#	if dice_throw_2 <= 0.1:
+					#		s.rotate_solution(12)
 
 		else:
 			for s in self.starting_positions:
@@ -215,15 +215,7 @@ class Solution:
 		'''
 		for v in self.vertexes:
 
-			if self.forward_vector.x < 0.12 and self.forward_vector.x >= 0.0:
-				self.forward_vector.x = 0.12
-			elif self.forward_vector.x > -0.12 and self.forward_vector.x <= 0.0:
-				self.forward_vector.x = -0.12
 
-			if self.forward_vector.y < 0.12 and self.forward_vector.y >= 0.0:
-				self.forward_vector.y = 0.12
-			elif self.forward_vector.y > -0.12 and self.forward_vector.y <= 0.0:
-				self.forward_vector.y = -0.12
 			change_x = self.acceleration * self.forward_vector.x
 			change_y = self.acceleration * self.forward_vector.y
 
