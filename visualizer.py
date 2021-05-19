@@ -2,6 +2,7 @@ import pygame
 from pygame import Vector2
 from os import environ
 import tkinter as tk
+from copy import copy
 from math import sin, cos, radians
 from random import uniform
 from time import sleep
@@ -76,12 +77,15 @@ class Field:
 				self.starting_positions.append(Solution(x, y, 0, k, self.surface))
 			cols -= 1
 
-	def draw_field(self):
+	def draw_field(self, ready_to_unleash):
 		# draws the 'problem' square
 		pygame.draw.rect(self.surface, RED, pygame.Rect(186, 50, 50, 50), 0, 0)
 		running = False
 		for s in self.solutions:
-			running = running or s.running
+			running |= s.running
+
+		running &= ready_to_unleash
+
 
 		if running:
 			for s in self.solutions:
@@ -97,6 +101,7 @@ class Field:
 					s.draw_solution()
 				else:
 					s.update_vertex_positions()
+					s.draw_solution()
 					# the fitness of the solution is the best possible thus solution flies straight to the goal. EVERYTHING IS COMMENTED OUT BECAUSE IT SEEMS LIKE CONSTANT USAGE OF ROTATION DRIVES OUR VECTOR TO 0 THUS REDUCING SPEED TO 0
 					#dice_throw_1 = uniform(0, 1)
 					#dice_throw_2 = uniform(0, 1)
@@ -133,12 +138,16 @@ class Field:
 				s.draw_solution()
 
 		if not running:
+			ready_to_unleash = False
 			for i in range(len(self.solutions)):
 
-				self.solutions[i].x = self.starting_positions[i].x
-				self.solutions[i].y = self.starting_positions[i].y
-				self.solutions[i].acceleration = self.starting_positions[i].starting_speed
-				self.solutions[i].forward_vector = self.starting_positions[i].forward_vector
+				self.solutions[i].x = copy(self.starting_positions[i].x)
+				self.solutions[i].y = copy(self.starting_positions[i].y)
+				self.solutions[i].forward_vector = copy(self.starting_positions[i].forward_vector)
+				self.solutions[i].vertexes = copy(self.starting_positions[i].vertexes)
+				self.solutions[i].acceleration = copy(self.starting_positions[i].acceleration)
+				self.solutions[i].precision = self.solutions[i].calculate_precision()
+			ready_to_unleash = True
 
 		return running
 
@@ -153,7 +162,6 @@ class Solution:
 		self.k = k
 		self.forward_vector = Vector2(0, -1)
 		self.acceleration = 4
-		self.starting_speed = 4
 		self.running = False
 		self.vertexes = []
 		self.initiate_vertexes()
@@ -161,6 +169,7 @@ class Solution:
 
 	def calculate_precision(self):
 		precision = float(self.fitness * 1.0 / self.k)
+		print(precision)
 		if precision < 0.5:
 			precision = 0.5
 
@@ -174,25 +183,26 @@ class Solution:
 				self.rotate_solution(12)
 			else:
 				self.rotate_solution(-12)
-		elif precision > 0.8 and precision <= 0.95:
+		elif precision > 0.8:
 			if coin_flip <= 0.5:
 				self.rotate_solution(16)
 			else:
 				self.rotate_solution(-16)
-		elif precision > 0.65 and precision <= 0.8:
+		elif precision > 0.65:
 			if coin_flip <= 0.5:
 				self.rotate_solution(22)
 			else:
 				self.rotate_solution(-22)
-		elif precision > 0.5 and precision <= 0.65:
+		elif precision > 0.5:
 			if coin_flip <= 0.5:
 				self.rotate_solution(30)
 			else:
 				self.rotate_solution(-30)
 		else:
 			self.rotate_solution(180)
-		self.update_vertex_positions()
 
+
+		self.update_vertex_positions()
 		return precision
 
 	def initiate_vertexes(self):
@@ -220,7 +230,7 @@ class Solution:
 			v[0] += change_x
 			v[1] += change_y
 
-		self.draw_solution()
+
 
 	def rotate_solution(self, angle):
 		angle = radians(angle)
@@ -254,8 +264,10 @@ class Visualizer:
 		self.field = None
 		self.grid = None
 		self.mode = mode
+		# used to signal visualizer that a new wave of units can be set off
+		self.ready_to_unleash = False
 		if self.mode == "gen_algo":
-			self.field = Field(self.surface, 4, k)
+			self.field = Field(self.surface, 1, k)
 		elif self.mode == "brute_algo":
 			self.grid = Grid(self.surface, 10, 16, 35, 5, 7)
 		# 'done' flag is used for the loop, if we were to use that as an indicator, when we set this flag to True when a solution gets to the goal, our window would close immediately and we don't want that. This flag is just used to indicate when can we start another generation in genetic algorithm
@@ -273,7 +285,7 @@ class Visualizer:
 			if self.mode == 'brute_algo':
 				self.grid.draw_grid()
 			elif self.mode == 'gen_algo':
-				self.running = self.field.draw_field()
+				self.running = self.field.draw_field(self.ready_to_unleash)
 
 			pygame.display.flip()
 			self.clock.tick(self.FPS)

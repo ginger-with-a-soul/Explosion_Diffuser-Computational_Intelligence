@@ -266,7 +266,6 @@ def search(k, n, population_size, mutation_chance, elitism_rate, output_label, m
     visualizer = Visualizer("Genetic-Simulated annealing algorithm", "gen_algo", k)
     Thread(target=visualizer.run, args=[], daemon=True).start()
 
-
     numerical_problem = transform_problem_to_numerical(k, problem, num_symbols_map)
     problem_dict = create_problem_dict(k, numerical_problem)
 
@@ -300,14 +299,6 @@ def search(k, n, population_size, mutation_chance, elitism_rate, output_label, m
         new_population.append((variation.fitness, variation.genome))
 
     for generation in range(num_of_generations):
-        # check to see if we can unleash another set of solutions to be visualized or if the last set is still flying around on the screen
-        if not visualizer.running:
-            print("flicker")
-            for s in visualizer.field.solutions:
-                s.fitness = population[randint(0, population_size - 1)][0]
-                s.precision = s.calculate_precision()
-                s.running = True
-
 
         if generation == num_of_generations-1:
             done_flag[0] = True
@@ -326,6 +317,18 @@ def search(k, n, population_size, mutation_chance, elitism_rate, output_label, m
 
             for j in range(num_of_elites):
                 if elites[j][0] > current_best_fitness:
+
+                    # check to see if we can unleash another set of solutions to be visualized or if the last set is still flying around on the screen
+                    if not visualizer.running:
+                        visualizer.ready_to_unleash = False
+                        print("flicker")
+                        for s in visualizer.field.solutions:
+                            s.fitness = elites[randint(0, num_of_elites - 1)][0]
+                            s.precision = s.calculate_precision()
+                            s.running = True
+                        # only after we've initialized all units are they allowed to move. This is used because         the context switching messes with sequential execution
+                        visualizer.ready_to_unleash = True
+
                     no_improvement_num = 0
                     mutation_chance = initial_mutation_chance
                     current_best_genome = elites[j][1][:]
