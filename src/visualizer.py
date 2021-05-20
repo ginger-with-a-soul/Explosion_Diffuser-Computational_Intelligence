@@ -169,7 +169,6 @@ class Solution:
 
 	def calculate_precision(self):
 		precision = float(self.fitness * 1.0 / self.k)
-		print(precision)
 		if precision < 0.5:
 			precision = 0.5
 
