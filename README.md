@@ -17,7 +17,7 @@ The combinatorial explosion stems from generation of all variations, with symbol
 ### Requirements:
 
 Python 3.8+ <br>
-The folder _runnable_ contains all of the packages you need already prepared using [PyInstaller](https://github.com/pyinstaller/pyinstaller). Because of that no extra installation is needed for **Linux** distos. If you want to run this on Windows or some other OS, you need to install all of the packages listed below and then you will be able to launch _main.py_ from the root folder of this program. <br><br>
+The folder _runnable_ contains all of the packages you need already prepared using [PyInstaller](https://github.com/pyinstaller/pyinstaller). Because of that no extra installation is needed for **Linux** distos. If you want to run this on Windows or some other OS, you need to install all of the packages listed below and then you will be able to launch _main.py_ from the ***src*** directory. <br><br>
 Packages used:
 * [Tkinter](https://docs.python.org/3/library/tkinter.html)
 * [Pygubu](https://github.com/alejandroautalan/pygubu)
