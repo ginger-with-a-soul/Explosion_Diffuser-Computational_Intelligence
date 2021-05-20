@@ -264,7 +264,7 @@ def search(k, n, population_size, mutation_chance, elitism_rate, output_label, m
 
     # the visualizing part
     visualizer = Visualizer("Genetic-Simulated annealing algorithm", "gen_algo", k)
-    Thread(target=visualizer.run, args=[], daemon=True).start()
+    Thread(target=visualizer.run, args=[done_flag[0]], daemon=True).start()
 
     numerical_problem = transform_problem_to_numerical(k, problem, num_symbols_map)
     problem_dict = create_problem_dict(k, numerical_problem)
@@ -339,6 +339,16 @@ def search(k, n, population_size, mutation_chance, elitism_rate, output_label, m
 
                     if elites[j][0] == k:
                         print(f'Solution {elites[j][1]} found in generation {generation}')
+                        while visualizer.running:
+                            # waiting for the visualizer to finish so it can diplay the unit that found the solution
+                            ...
+                        visualizer.ready_to_unleash = False
+                        for s in visualizer.field.solutions:
+                            s.fitness = k
+                            s.precision = s.calculate_precision()
+                            s.running = True
+                        # only after we've initialized all units are they allowed to move. This used               ecause         the context switching messes with sequential execution
+                        visualizer.ready_to_unleash = True
                         done_flag[0] = True
                         return
 
@@ -354,12 +364,12 @@ def search(k, n, population_size, mutation_chance, elitism_rate, output_label, m
         no_improvement_num += 1
         if no_improvement_num >= int(num_of_generations * dynamic_mutation_rate):
             mutation_chance += mutation_chance * mutation_chance_increment
-            if mutation_chance > 0.25:
-                # we will cap out our mutation_chance to 25%
-                mutation_chance = 0.25
+            if mutation_chance > 0.3:
+                # we will cap out our mutation_chance to 30%
+                mutation_chance = 0.3
             print(f'No improvement: {no_improvement_num} generations\nMutation chance increased to: {mutation_chance}')
 
-        print(tournament_size)
+
         print(f'Generation: {generation}\nCurrent best solution: {current_best_fitness, current_best_genome}\n')
 
         population = new_population

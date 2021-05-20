@@ -77,9 +77,9 @@ class Field:
 				self.starting_positions.append(Solution(x, y, 0, k, self.surface))
 			cols -= 1
 
-	def draw_field(self, ready_to_unleash):
+	def draw_field(self, ready_to_unleash, search_is_done):
 		# draws the 'problem' square
-		pygame.draw.rect(self.surface, RED, pygame.Rect(186, 50, 50, 50), 0, 0)
+		pygame.draw.rect(self.surface, RED, pygame.Rect(191, 40, 40, 40), 0, 0)
 		running = False
 		for s in self.solutions:
 			running |= s.running
@@ -87,7 +87,7 @@ class Field:
 		running &= ready_to_unleash
 
 
-		if running:
+		if running and not search_is_done:
 			for s in self.solutions:
 				upper_vertex = s.vertexes[3]
 				# checks to see if the *pointy* part of the solutions model is out of bounds or if it hit the solutions rectangle, and stops it in its tracks if it is/did
@@ -95,54 +95,52 @@ class Field:
 				   upper_vertex[0] >= WIDTH or \
 				   upper_vertex[1] <= 0 or \
 				   upper_vertex[1] >= HEIGHT or \
-				   ((upper_vertex[0] >= 186 and upper_vertex[0] <= 236) and
-						(upper_vertex[1] <= 100 and upper_vertex[1] >= 50)):
+				   ((upper_vertex[0] >= 191 and upper_vertex[0] <= 231) and
+						(upper_vertex[1] <= 80 and upper_vertex[1] >= 40)):
 					s.running = False
 					s.draw_solution()
 				else:
 					s.update_vertex_positions()
 					s.draw_solution()
 					# the fitness of the solution is the best possible thus solution flies straight to the goal. EVERYTHING IS COMMENTED OUT BECAUSE IT SEEMS LIKE CONSTANT USAGE OF ROTATION DRIVES OUR VECTOR TO 0 THUS REDUCING SPEED TO 0
-					#dice_throw_1 = uniform(0, 1)
-					#dice_throw_2 = uniform(0, 1)
-					#if s.precision == 1:
-					#	...
-					#elif s.precision > 0.95:
-					#	if dice_throw_1 <= 0.01:
-					#		s.rotate_solution(1)
-					#	if dice_throw_2 <= 0.01:
-					#		s.rotate_solution(-1)
-					#elif s.precision > 0.8 and s.precision <= 0.95:
-					#	if dice_throw_1 <= 0.04:
-					#		s.rotate_solution(4)
-					#	if dice_throw_2 <= 0.04:
-					#		s.rotate_solution(-4)
-					#elif s.precision > 0.65 and s.precision <= 0.85:
-					#	if dice_throw_1 <= 0.05:
-					#		s.rotate_solution(8)
-					#	if dice_throw_2 <= 0.05:
-					#		s.rotate_solution(-8)
-					#elif s.precision > 0.5 and s.precision <= 0.65:
-					#	if dice_throw_1 <= 0.8:
-					#		s.rotate_solution(10)
-					#	if dice_throw_2 <= 0.8:
-					#		s.rotate_solution(-10)
-					#else:
-					#	if dice_throw_1 <= 0.1:
-					#		s.rotate_solution(12)
-					#	if dice_throw_2 <= 0.1:
-					#		s.rotate_solution(12)
+					dice_throw_1 = uniform(0, 1)
+					dice_throw_2 = uniform(0, 1)
+					if s.precision == 1.0:
+						...
+					elif s.precision > 0.9:
+						...
+					elif s.precision > 0.8:
+						if dice_throw_1 <= 0.04:
+							s.rotate_solution(3)
+						if dice_throw_2 <= 0.03:
+							s.rotate_solution(-3)
+					elif s.precision > 0.65:
+						if dice_throw_1 <= 0.06:
+							s.rotate_solution(6)
+						if dice_throw_2 <= 0.06:
+							s.rotate_solution(-6)
+					elif s.precision > 0.5:
+						if dice_throw_1 <= 0.08:
+							s.rotate_solution(8)
+						if dice_throw_2 <= 0.08:
+							s.rotate_solution(-8)
+					else:
+						if dice_throw_1 <= 0.09:
+							s.rotate_solution(10)
+						if dice_throw_2 <= 0.09:
+							s.rotate_solution(-10)
 
 		else:
 			for s in self.starting_positions:
 				s.draw_solution()
 
-		if not running:
+		if not running and not search_is_done:
 			ready_to_unleash = False
 			for i in range(len(self.solutions)):
 
 				self.solutions[i].x = copy(self.starting_positions[i].x)
 				self.solutions[i].y = copy(self.starting_positions[i].y)
+				self.solutions[i].fitness = copy(self.starting_positions[i].fitness)
 				self.solutions[i].forward_vector = copy(self.starting_positions[i].forward_vector)
 				self.solutions[i].vertexes = copy(self.starting_positions[i].vertexes)
 				self.solutions[i].acceleration = copy(self.starting_positions[i].acceleration)
@@ -161,14 +159,14 @@ class Solution:
 		self.fitness = fitness
 		self.k = k
 		self.forward_vector = Vector2(0, -1)
-		self.acceleration = 4
+		self.acceleration = 6
 		self.running = False
 		self.vertexes = []
 		self.initiate_vertexes()
-		self.precision = self.calculate_precision
+		self.precision = self.calculate_precision()
 
 	def calculate_precision(self):
-		precision = float(self.fitness * 1.0 / self.k)
+		precision = float(self.fitness / self.k)
 		if precision < 0.5:
 			precision = 0.5
 
@@ -177,31 +175,31 @@ class Solution:
 
 		if precision == 1.0:
 			...
-		elif precision > 0.95:
+		elif precision > 0.9:
 			if coin_flip <= 0.5:
-				self.rotate_solution(12)
+				self.rotate_solution(8)
 			else:
-				self.rotate_solution(-12)
+				self.rotate_solution(-8)
 		elif precision > 0.8:
 			if coin_flip <= 0.5:
-				self.rotate_solution(16)
+				self.rotate_solution(19)
 			else:
-				self.rotate_solution(-16)
+				self.rotate_solution(-19)
 		elif precision > 0.65:
 			if coin_flip <= 0.5:
-				self.rotate_solution(22)
+				self.rotate_solution(45)
 			else:
-				self.rotate_solution(-22)
+				self.rotate_solution(-45)
 		elif precision > 0.5:
 			if coin_flip <= 0.5:
-				self.rotate_solution(30)
+				self.rotate_solution(60)
 			else:
-				self.rotate_solution(-30)
+				self.rotate_solution(-60)
 		else:
 			self.rotate_solution(180)
 
 
-		self.update_vertex_positions()
+		self.draw_solution()
 		return precision
 
 	def initiate_vertexes(self):
@@ -223,6 +221,7 @@ class Solution:
 		'''
 		for v in self.vertexes:
 
+			self.forward_vector.normalize_ip()
 			change_x = self.acceleration * self.forward_vector.x
 			change_y = self.acceleration * self.forward_vector.y
 
@@ -238,8 +237,7 @@ class Solution:
 		c = cos(angle)
 		s = sin(angle)
 
-		self.forward_vector.x = self.forward_vector.x * c - self.forward_vector.y * s
-		self.forward_vector.y = self.forward_vector.x * s + self.forward_vector.y * c
+		self.forward_vector.rotate_ip_rad(angle)
 
 		for vertex in self.vertexes:
 
@@ -266,13 +264,13 @@ class Visualizer:
 		# used to signal visualizer that a new wave of units can be set off
 		self.ready_to_unleash = False
 		if self.mode == "gen_algo":
-			self.field = Field(self.surface, 1, k)
+			self.field = Field(self.surface, 4, k)
 		elif self.mode == "brute_algo":
 			self.grid = Grid(self.surface, 10, 16, 35, 5, 7)
 		# 'done' flag is used for the loop, if we were to use that as an indicator, when we set this flag to True when a solution gets to the goal, our window would close immediately and we don't want that. This flag is just used to indicate when can we start another generation in genetic algorithm
 		self.running = False
 
-	def run(self):
+	def run(self, search_is_done):
 		while not self.done:
 			self.surface.fill(BLUISH)
 
@@ -284,7 +282,7 @@ class Visualizer:
 			if self.mode == 'brute_algo':
 				self.grid.draw_grid()
 			elif self.mode == 'gen_algo':
-				self.running = self.field.draw_field(self.ready_to_unleash)
+				self.running = self.field.draw_field(self.ready_to_unleash, search_is_done)
 
 			pygame.display.flip()
 			self.clock.tick(self.FPS)
