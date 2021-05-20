@@ -23,7 +23,7 @@ Packages used:
 * [Pygubu](https://github.com/alejandroautalan/pygubu)
 * [Psutil](https://github.com/giampaolo/psutil)
 * [Pygame](https://github.com/pygame/pygame)
-* [Baseconvert](https://github.com/squdle/baseconvert)
+* [Baseconvert](https://github.com/squdle/baseconvert) -> *SOURCE OF THIS ONE IS ALREADY INCLUDED (**baseconv.py** - was NOT written by me). THIS WAS DONE BECAUSE PYINSTALLER WOULD NOT COOPERATE WITH THIS PACKAGE*
 
 ---
 
