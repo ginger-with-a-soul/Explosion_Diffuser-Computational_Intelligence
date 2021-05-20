@@ -19,7 +19,19 @@
 	- `temperatura_kaljenja * O(dužina_jedinke)` za **simulirano kaljenje**.
 	- `6 * O(log(broj_elitnih_jedinki))` za održavanje **min heap-a elitnih jedinki** - ako se pojavi jedinka koja je bolja od najlošije jedinke, ona će u `O(log(broj_elitnih_jedinki))` vremenu biti ubačena u min heap a u istom vremenu će i najlošija jedinka biti izbačena iz heap-a, a pošto se ova provera vrši 3 puta u toku generacije, složenost dobija konstantan faktor 6 ispred.
 - Kada sve sumiramo, **složenost ove implementacije genetskog algoritma jeste O(broj_generacija * (5 * dužina_jedinke + temperatura_kaljenja * O(dužina_jedinke) + 6 * O(log(broj_elitnih_jedinki))))**
-- TESTOVI
+- Testirao sam oba algoritma na različitim dužinama varijacije i različitom veličinom skupa dozvoljenih simbola, ali svaki test za oba rađen je nad istim problemom: recimo da trenutno testiramo za varijaciju veličine 10, broja dozvoljenih simbola 5, oba algoritma će biti testirana nad identičnim ulazom. Jedina razlika, doduše može biti i jeste značajna, je što će broj jedinku u jednoj populaciji kod genetskog algoritma, biti menjan shodno težini problema i biće dodat u tabeli u koloni za genetski algoritam kao broj u zagradi pored vremena izvršavanja. Rezultati testiranja izraženi u *ms*: <br><br>
+
+| Dužina varijacije | Veličina skupa simbola |Ukupan broj varijacija| Brute-force | Genetski-SA |
+|       :---:       |         :----:         |        :---:         |    :---:    |    :---:    |
+| 5                 | 5                      | 3 125                |             |             |
+| 10                | 5                      | 9 765 625            |             |             |
+| 10                | 7                      | 282 475 249          |             |             |
+| 10                | 8                      | 1.073 * e9           |             |             |
+| 15                | 15                     | 4.378 * e17          |             |             |
+| 20                | 20                     | 1.048 * e26          |             |             |
+| 21                | 36                     | 4.812 * e32          |             |             |
+
+<br><br>
 - Program je pisan u **Python-u verzija 3.8.5 64-bit**. **Ubuntu 20.04** je pokretao **Visual Studio Code** okruženje u kojem sam pisao i kasnije testirao program. Sva testiranja rađena su na **Intel(R) Core(TM)i5-6400U** procesoru koji ima 4 jezgra a svako radi na 2.4GHz brzini. Zbog ugrađenog **Global Interpreter Lock sistema (GIL)**, Python programi rade na samo jednom jezgru čak i kada su implementirani tredovi. Jedini način da se ovo zaobiđe jeste korišćenje Multiprocessing-a. Sva testiranja programa rađena su na jednom 2.4GHz jezgru jer nisam implamentirao multiprocessing. Multithreading sam implementirao kako bi zamena konteksta bila brža i tako omogućio da se pseudo-paralelno izvršava algoritam sa iscrtavanjem korisničkog interfejsa i vizualizacijom rada algoritma. Pre multithreading-a izvršavanje algoritma onemogućilo bi prihvatljivo osvežavanje UI-a i iscrtavanja.
 
 ## Zaključak:
