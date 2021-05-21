@@ -79,7 +79,7 @@ class Field:
 
 	def draw_field(self, ready_to_unleash, search_is_done):
 		# draws the 'problem' square
-		pygame.draw.rect(self.surface, RED, pygame.Rect(191, 40, 40, 40), 0, 0)
+		pygame.draw.rect(self.surface, RED, pygame.Rect(191, 40, 40, 40), 0, 10)
 		running = False
 		for s in self.solutions:
 			running |= s.running
@@ -158,7 +158,7 @@ class Solution:
 		self.y = y
 		self.fitness = fitness
 		self.k = k
-		self.forward_vector = Vector2(0, -1)
+		self.forward_vector = (Vector2(202, 60) - Vector2(self.x, self.y)).normalize()
 		self.acceleration = 6
 		self.running = False
 		self.vertexes = []
@@ -264,7 +264,7 @@ class Visualizer:
 		# used to signal visualizer that a new wave of units can be set off
 		self.ready_to_unleash = False
 		if self.mode == "gen_algo":
-			self.field = Field(self.surface, 4, k)
+			self.field = Field(self.surface, 5, k)
 		elif self.mode == "brute_algo":
 			self.grid = Grid(self.surface, 10, 16, 35, 5, 7)
 		# 'done' flag is used for the loop, if we were to use that as an indicator, when we set this flag to True when a solution gets to the goal, our window would close immediately and we don't want that. This flag is just used to indicate when can we start another generation in genetic algorithm

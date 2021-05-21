@@ -271,7 +271,7 @@ def search(k, n, population_size, mutation_chance, elitism_rate, output_label, m
 
     elites, num_of_elites = elitism(elitism_rate, population_size)
     num_of_generations = 1400
-    tournament_size = ceil(population_size * 0.05)
+    tournament_size = ceil(population_size * 0.03)
 
     simulated_annealing_temperature = 25
     # can't make this a touple because touples are immutable
