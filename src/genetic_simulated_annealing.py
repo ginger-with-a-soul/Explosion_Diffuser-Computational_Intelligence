@@ -304,7 +304,7 @@ def search(k, n, population_size, mutation_chance, elitism_rate, output_label, m
         if not visualizer.running:
             visualizer.ready_to_unleash = False
             for s in visualizer.field.solutions:
-                s.fitness = elites[randint(0, num_of_elites - 1)][0]
+                s.fitness = population[randint(0, population_size - 1)][0]
                 s.precision = s.calculate_precision()
                 s.running = True
             # only after we've initialized all units are they allowed to move. This used because         the context switching messes with sequential execution

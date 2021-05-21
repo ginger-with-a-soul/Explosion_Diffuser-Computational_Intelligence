@@ -115,20 +115,20 @@ class Field:
 						if dice_throw_2 <= 0.03:
 							s.rotate_solution(-3)
 					elif s.precision > 0.65:
-						if dice_throw_1 <= 0.06:
-							s.rotate_solution(6)
-						if dice_throw_2 <= 0.06:
-							s.rotate_solution(-6)
+						if dice_throw_1 <= 0.05:
+							s.rotate_solution(5)
+						if dice_throw_2 <= 0.05:
+							s.rotate_solution(-5)
 					elif s.precision > 0.5:
-						if dice_throw_1 <= 0.08:
-							s.rotate_solution(8)
-						if dice_throw_2 <= 0.08:
-							s.rotate_solution(-8)
+						if dice_throw_1 <= 0.07:
+							s.rotate_solution(7)
+						if dice_throw_2 <= 0.07:
+							s.rotate_solution(-7)
 					else:
-						if dice_throw_1 <= 0.09:
-							s.rotate_solution(10)
-						if dice_throw_2 <= 0.09:
-							s.rotate_solution(-10)
+						if dice_throw_1 <= 0.08:
+							s.rotate_solution(9)
+						if dice_throw_2 <= 0.08:
+							s.rotate_solution(-9)
 
 		else:
 			for s in self.starting_positions:
@@ -177,19 +177,19 @@ class Solution:
 			...
 		elif precision > 0.9:
 			if coin_flip <= 0.5:
-				self.rotate_solution(8)
+				self.rotate_solution(6)
 			else:
-				self.rotate_solution(-8)
+				self.rotate_solution(-6)
 		elif precision > 0.8:
 			if coin_flip <= 0.5:
-				self.rotate_solution(19)
+				self.rotate_solution(17)
 			else:
-				self.rotate_solution(-19)
+				self.rotate_solution(-17)
 		elif precision > 0.65:
 			if coin_flip <= 0.5:
-				self.rotate_solution(45)
+				self.rotate_solution(42)
 			else:
-				self.rotate_solution(-45)
+				self.rotate_solution(-42)
 		elif precision > 0.5:
 			if coin_flip <= 0.5:
 				self.rotate_solution(60)
