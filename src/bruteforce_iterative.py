@@ -39,7 +39,7 @@ def generate_all(k, n, output_label, mainwindow, problem, num_symbols_map, progr
 
     if not visualizer.running:
         # starts the 'run' function from the visualization part
-        Thread(target=visualizer.run, args=[], daemon=True).start()
+        Thread(target=visualizer.run, args=[done_flag[0]], daemon=True).start()
         visualizer.running = True
     else:
         return
