@@ -10,7 +10,9 @@ The combinatorial explosion stems from generation of all variations, with symbol
 
 `git clone https://github.com/ginger-with-a-soul/Explosion_Diffuser-Computational_Intelligence.git` <br>
 `cd Explosion_Diffuser-Computational_Intelligence/runnable` <br>
-`./make` <br>
+`./main` <br>
+
+**Usage:** *press ESC when the visualizer window finishes if you want to start another run. Otherwise a new visualizer window will be opened on top of the existing one and the program will crash*
 
 ---
 
