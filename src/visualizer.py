@@ -39,6 +39,7 @@ class Grid:
 						 pygame.Rect(row_coord, col_coord, self.cell_size, self.cell_size), 0, 9)
 
 	def draw_grid(self):
+		running = True
 		position = 0
 		for col in range(self.col_num):
 			col_coord = self.margin_size + col * self.spacing + col * self.cell_size
@@ -48,6 +49,7 @@ class Grid:
 
 				if position == self.current_position and position == self.problem_position:
 					self.draw_rect(row_coord, col_coord, TEAL)
+					running = False
 				elif position == self.current_position:
 					self.draw_rect(row_coord, col_coord, GREEN)
 				elif position == self.problem_position:
@@ -55,6 +57,8 @@ class Grid:
 				else:
 					self.draw_rect(row_coord, col_coord, BLACK)
 				position += 1
+
+		return running
 
 
 class Field:
@@ -255,6 +259,20 @@ class Visualizer:
 	def __init__(self, caption, mode, k):
 		self.done = False
 		self.surface = pygame.display.set_mode((WIDTH, HEIGHT), pygame.SCALED | pygame.NOFRAME, vsync=1)
+
+		pygame.font.init()
+		self.draw_end_text = False
+		font = pygame.font.SysFont('c059', 26, bold=True, italic=True)
+		self.end_game_text_1 = font.render('Algorithm execution done!', True, RED, BLACK)
+		self.end_game_text_2 = font.render('Press ESC to close this window', True, RED, BLACK)
+		self.end_game_text_3 = font.render('before starting another run!', True, RED, BLACK)
+		self.end_game_text_rect_1 = self.end_game_text_1.get_rect()
+		self.end_game_text_rect_2 = self.end_game_text_2.get_rect()
+		self.end_game_text_rect_3 = self.end_game_text_3.get_rect()
+		self.end_game_text_rect_1.center = (WIDTH // 2, HEIGHT // 2 - 80)
+		self.end_game_text_rect_2.center = (WIDTH // 2, HEIGHT // 2 - 40)
+		self.end_game_text_rect_3.center = (WIDTH // 2, HEIGHT // 2 )
+
 		pygame.display.set_caption(caption)
 		self.clock = pygame.time.Clock()
 		self.FPS = 30
@@ -280,9 +298,14 @@ class Visualizer:
 					self.done = True
 
 			if self.mode == 'brute_algo':
-				self.grid.draw_grid()
+				self.running = self.grid.draw_grid()
 			elif self.mode == 'gen_algo':
 				self.running = self.field.draw_field(self.ready_to_unleash, search_is_done)
+
+			if self.draw_end_text:
+				self.surface.blit(self.end_game_text_1, self.end_game_text_rect_1)
+				self.surface.blit(self.end_game_text_2, self.end_game_text_rect_2)
+				self.surface.blit(self.end_game_text_3, self.end_game_text_rect_3)
 
 			pygame.display.flip()
 			self.clock.tick(self.FPS)

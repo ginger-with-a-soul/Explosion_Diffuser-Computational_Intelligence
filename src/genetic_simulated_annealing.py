@@ -312,6 +312,7 @@ def search(k, n, population_size, mutation_chance, elitism_rate, output_label, m
 
         if generation == num_of_generations-1:
             done_flag[0] = True
+            visualizer.draw_end_text = True
             return
 
         for i in range(0, population_size, 2):
@@ -347,8 +348,9 @@ def search(k, n, population_size, mutation_chance, elitism_rate, output_label, m
                             s.fitness = k
                             s.precision = s.calculate_precision()
                             s.running = True
-                        # only after we've initialized all units are they allowed to move. This used               ecause         the context switching messes with sequential execution
+                        # only after we've initialized all units are they allowed to move. This is used because the context switching messes with sequential execution
                         visualizer.ready_to_unleash = True
+                        visualizer.draw_end_text = True
                         done_flag[0] = True
                         return
 

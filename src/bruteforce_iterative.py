@@ -74,6 +74,7 @@ def generate_all(k, n, output_label, mainwindow, problem, num_symbols_map, progr
 
             if(current_best_fitness == k):
                 done_flag[0] = True
+                visualizer.draw_end_text = True
                 return
 
         index = k - 1
