@@ -39,7 +39,7 @@ _there is a hardlock in place if you try to use parameters that are larger than 
 
 ### Algorithms:
 
-I've implemented 2 different algorithms that affect the speed of the search drastically, which was the point of this project after all.<br><br>**Brute-force algorithm** is the slowest of them all. It goes through variations from back to front transforming current variation into the next one by incrementing it by 1. It gets really slow when the lenght of a variation is about 10-11 and the number of symbols is about 7-8.<br><br>
+I've implemented 2 different algorithms that affect the speed of the search drastically, which was the point of this project after all.<br><br>**Brute-force algorithm** is the slowest of them all. It goes through variations from back to front transforming current variation into the next one by incrementing it by 1. It gets really slow when the length of a variation is about 10-11 and the number of symbols is about 7-8.<br><br>
 **Genetic algorithm with simulated annealing** is a very efficient implementation of this evolutive algorithm. It uses simulated annealing optimization that contributes to what is a very fast stochastic search algorithm. <br><br>
 
 *In the future I plan to add some other algorithms as an expansion to this project, and a better benchmark for my 2nd algorithm.*
