@@ -1,4 +1,4 @@
-from random import uniform, randint
+from random import uniform, randint, sample, choices
 from math import ceil
 from heapq import heappushpop, heappush
 from threading import Thread, Lock
@@ -103,62 +103,30 @@ def elitism(elitism_rate, population_size):
             heappush(elites, (0.0, []))
         return elites, num_of_elites
 
-def tournament_selection(population_size, population, tournament_size):
+def tournament_selection(population, tournament_size):
     '''
     Tournament plays out tournament_size times and the winner is the genome that
     has the best fitness.
     '''
-
-    index = -1
-    max_fitness = 0
-    for i in range(tournament_size):
-        j = randint(0, population_size - 1)
-        if population[j][0] > max_fitness:
-            index = j
-            max_fitness = population[j][0]
-
-    return population[index]
+    return max(sample(population, k=tournament_size), key=lambda x: x[0])
 
 
-def roulette_selection(population_size, population, tournament_size):
+def roulette_selection(population, tournament_size):
     '''
     Roulette selection gets tourament_size number of genomes, calculates probability
     of each one and then 'spins the wheel' to see who's the lucky winner.
-
-    For speed purposes, there won't be any sorting so the first genome that qualifies
-    will be the chosen one.
-
-    Firstly we choose a bunch of genomes and sum up their fitness. After that we calculate
-    probability to be chosen for each genome as 'all_prev_probs + current_genome_fitness / total_fitness'.
     '''
 
-    fitness_sum = 0.0
-    tournament_winners = []
-    for _ in range(tournament_size):
-        # 'winner' is a list and not a tuple because we will need to update 3rd item
-        # and tuples are immutable
-        winner = [population[randint(0, population_size - 1)], 0.0]
-        fitness_sum += winner[0][0]
-        tournament_winners.append(winner)
+    new_population = sample(population, k=tournament_size)
+    return choices(new_population, weights=[x[0] for x in new_population], k=1)[0]
 
-    winner_prob = uniform(0.0, 1.0)
-    probability = 0.0
-
-    for i in range(tournament_size):
-        tournament_winners[i][1] = probability + tournament_winners[i][0][0] / fitness_sum
-        probability = tournament_winners[i][1]
-        if winner_prob < tournament_winners[i][1]:
-            return tournament_winners[i][0]
-
-def selection(tournament_mode, population_size, population, tournament_size):
+def selection(tournament_mode, population, tournament_size):
     if tournament_mode:
-        parent_1 = tournament_selection(population_size, population, tournament_size)
-        parent_2 = tournament_selection(population_size, population, tournament_size)
-    else:
-        parent_1 = roulette_selection(population_size, population, tournament_size)
-        parent_2 = roulette_selection(population_size, population, tournament_size)
+        return tournament_selection(population, tournament_size)
 
-    return parent_1, parent_2
+    else:
+        return roulette_selection(population, tournament_size)
+
 
 def crossover(k, n, parent_1_genome, parent_2_genome, problem, problem_dict):
     '''
@@ -170,7 +138,7 @@ def crossover(k, n, parent_1_genome, parent_2_genome, problem, problem_dict):
     child_2 = Variation(k, n, problem, problem_dict, False)
 
     for i in range(k):
-        p = uniform(0.0, 1.0)
+        p = uniform(0, 1)
         if p < 0.5:
             child_1.genome.append(parent_1_genome[i])
             child_2.genome.append(parent_2_genome[i])
@@ -184,20 +152,15 @@ def crossover(k, n, parent_1_genome, parent_2_genome, problem, problem_dict):
     return child_1, child_2
 
 
-def mutation(child_1, child_2, mutation_chance):
-    for i in range(child_1.k):
-        p = uniform(0.0, 1.0)
+def mutation(child, mutation_chance):
+    for i in range(child.k):
+        p = uniform(0, 1)
         if p < mutation_chance:
-            child_1.genome[i] = randint(1, child_1.n)
+            child.genome[i] = randint(1, child.n)
 
-        p = uniform(0.0, 1.0)
-        if p < mutation_chance:
-            child_2.genome[i] = randint(1, child_1.n)
+    child.fitness = child.calculate_fitness()
 
-    child_1.fitness = child_1.calculate_fitness()
-    child_2.fitness = child_2.calculate_fitness()
-
-    return (child_1.fitness, child_1.genome), (child_2.fitness, child_2.genome)
+    return (child.fitness, child.genome)
 
 def symbolical_problem(k, numerical_problem, num_symbols_map, solution):
     '''
@@ -216,7 +179,6 @@ def symbolical_problem(k, numerical_problem, num_symbols_map, solution):
 def simulated_annealing(genome, iterations, n, k, problem, problem_dict):
     '''
     Simulated annealing tries to improve current best genome by replacing a random gene of that
-    genome with another random gene from the problem set.
     If the newly created genome is better than the original one, it will be sent back and added
     to the population. This results in faster convergence towards a solution (or a local max).
     If the newly created genome is not better than the original one, there is a chance that the
@@ -271,6 +233,7 @@ def search(k, n, population_size, mutation_chance, elitism_rate, output_label, m
 
     elites, num_of_elites = elitism(elitism_rate, population_size)
     num_of_generations = 1400
+    initial_population_size = 3 * population_size
     tournament_size = ceil(population_size * 0.03)
 
     simulated_annealing_temperature = 25
@@ -290,7 +253,7 @@ def search(k, n, population_size, mutation_chance, elitism_rate, output_label, m
     mutation_chance_increment = 0.05
 
     # initial population generation
-    for i in range(population_size):
+    for i in range(initial_population_size):
         variation = Variation(k, n, numerical_problem, problem_dict, True)
 
         heappushpop(elites, (variation.fitness, variation.genome))
@@ -317,11 +280,13 @@ def search(k, n, population_size, mutation_chance, elitism_rate, output_label, m
 
         for i in range(0, population_size, 2):
 
-            parent_1, parent_2 = selection(tournament_selection_mode, population_size, population, tournament_size)
+            parent_1 = selection(tournament_selection_mode, population, tournament_size)
+            parent_2 = selection(tournament_selection_mode, population, tournament_size)
 
             child_1, child_2 = crossover(k, n, parent_1[1], parent_2[1], numerical_problem, problem_dict)
 
-            child_1, child_2 = mutation(child_1, child_2, mutation_chance)
+            child_1 = mutation(child_1, mutation_chance)
+            child_2 = mutation(child_2, mutation_chance)
 
             heappushpop(elites, (child_1[0], child_1[1]))
             heappushpop(elites, (child_2[0], child_2[1]))

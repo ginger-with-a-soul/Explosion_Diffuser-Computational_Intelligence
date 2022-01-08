@@ -81,7 +81,7 @@ class UiApp:
     def theme(self):
         # root.tk.call locates the theme package and selects styles we wish
         # to use from that package
-        self.theme_abs_path = os.path.abspath('awthemes-10.2.1')
+        self.theme_abs_path = os.path.abspath('../awthemes-10.2.1')
         self.mainwindow.tk.call('lappend', 'auto_path', self.theme_abs_path)
         self.mainwindow.tk.call('package', 'require', 'awdark')
         self.mainwindow.tk.call('package', 'require', 'awlight')
