@@ -8,6 +8,10 @@ The combinatorial explosion stems from generation of all variations, with symbol
 
 ### Installation:
 
+## Via Docker:
+`docker run --name explosion-diffuser -dt -e DISPLAY=$DISPLAY -v /tmp/.X11-unix:/tmp/.X11-unix gingerwithasoul/explosion-diffuser:latest`
+
+## Via Pyinstaller:
 `git clone https://github.com/ginger-with-a-soul/Explosion_Diffuser-Computational_Intelligence.git` <br>
 `cd Explosion_Diffuser-Computational_Intelligence/runnable` <br>
 `./main` <br>
