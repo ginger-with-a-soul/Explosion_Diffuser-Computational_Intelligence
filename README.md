@@ -47,3 +47,21 @@ I've implemented 2 different algorithms that affect the speed of the search dras
 **Genetic algorithm with simulated annealing** is a very efficient implementation of this evolutive algorithm. It uses simulated annealing optimization that contributes to what is a very fast stochastic search algorithm. <br><br>
 
 *In the future I plan to add some other algorithms as an expansion to this project, and a better benchmark for my 2nd algorithm.*
+
+
+![Main menu](https://user-images.githubusercontent.com/55445149/173895847-d3a3e7ad-0293-4fe1-a634-1eee736cf2de.png)
+
+![Brute force](https://user-images.githubusercontent.com/55445149/173895901-eacc2857-16c4-4917-b831-9b2323c1ce91.png)
+
+![Almost there](https://user-images.githubusercontent.com/55445149/173895959-9c1c8ec9-ec2e-4c16-925f-a4152e1256c4.png)
+
+![Brute force found it!](https://user-images.githubusercontent.com/55445149/173895975-1734c992-860f-43a5-aae1-8fb9d89c4f1e.png)
+
+![Genetic algorithm started](https://user-images.githubusercontent.com/55445149/173895992-f62cb231-bf95-4e5e-94d3-2e1d6286d1f3.png)
+
+![Almost there](https://user-images.githubusercontent.com/55445149/173896011-1f11bc74-d473-4f3c-81f2-1a86885aad3d.png)
+
+![Success!](https://user-images.githubusercontent.com/55445149/173896018-d3e6581c-2fc2-4563-aa82-086b2fccb587.png)
+
+
+
